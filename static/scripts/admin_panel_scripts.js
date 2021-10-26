@@ -22,10 +22,36 @@ function admin_panel_loaded() {
                 }
             )
         }
+    );  // подтягивает список категорий с бека для отображения dropdown списка
 
-    );
+    goods_category_select.addEventListener('change', on_category_select);
+    addCard();
 }
 
+function on_category_select(event) {
+    let category = event.target.value
+    get_goods_by_category(category).then(
+        goods => console.log(goods)
+    )
+}
+
+
+function addCard() {
+    let goods_cards_div = document.getElementById("goods_cards_div");
+    let card = document.createElement("div")
+    card.className = "goods_item_card"
+    let img = document.createElement("img")
+    img.src = "../../static/pictures/plus-icon-black-2.png"
+    card.appendChild(img)
+
+    let edit_btn = document.createElement("button")
+    edit_btn.value = "Edit"
+    card.appendChild(edit_btn)
+    goods_cards_div.appendChild(card)
+}
+
+
+// ------------------ api methods ----------
 async function postData(url = '', data = {}) {
   const response = await fetch(url, {
     method: 'POST',
@@ -41,15 +67,13 @@ async function postData(url = '', data = {}) {
 }
 
 async function get_categories() {
-    let categories = postData("/api/get_categories");
     // console.log(categories);
-    return categories;
+    return postData("/api/get_categories");
 }
 
 
-async function get_goods_by_category() {
-    let goods = postData("/api/get_goods_by_category");
-    console.log(goods);
-    return goods;
+async function get_goods_by_category(category) {
+    // console.log(goods);
+    return postData("/api/get_goods_by_category", {"category": category});
 }
 

@@ -2,3 +2,8 @@
     margin-top: 5%;
     width: 40%;
 }
+
+.goods_item_card {
+    width: 20%;
+    border: #606c76 2px solid;
+}
