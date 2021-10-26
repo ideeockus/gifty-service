@@ -2,20 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Title</title>
+    <link rel="stylesheet" type="text/css" href="../../static/styles/milligram.min.css">
+    <link rel="stylesheet" type="text/css" href="../../static/styles/admin_panel_styles.css">
 </head>
 <body>
 <section class="section">
     <div class="container">
-        
+        <label for="goods_category_select">Choose a category:</label>
+        <select name="goods_category" id="goods_category_select"></select>
     </div>
-    <div class="container" id="signin_form_div">
-      <form action="signin" method="post">
-          <label for="password_input">Enter password:</label>
-          <input id="password_input" type="password" name="password"/><br>
-        <input type="submit" value="Submit" />
-      </form>
+    <div class="container" id="goods_cards_div">
+
     </div>
   </section>
 </body>
+ <script src="../../static/scripts/admin_panel_scripts.js"></script>
 </html>

@@ -2,12 +2,14 @@ import logging
 
 from flask import Flask
 from admin_panel import admin_panel
+from common_api import api
 import secrets
 
 app = Flask(__name__)
 app.secret_key = secrets.token_bytes(30)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1000 * 1000  # in bytes
 app.register_blueprint(admin_panel)
+app.register_blueprint(api)
 app.logger.setLevel(logging.DEBUG)
 
 print(app.url_map)

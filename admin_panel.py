@@ -19,6 +19,14 @@ def is_image_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1] in {"png", "jpg", "jpeg"}
 
 
+@admin_panel.get("/")
+def root():
+    if "auth_token" in session:
+        # validate auth_token
+        return redirect(url_for("admin.panel"))
+    return redirect(url_for("admin.signin"))
+
+
 @admin_panel.get("/panel")
 def panel():
     return render_template("admin/panel.html")
