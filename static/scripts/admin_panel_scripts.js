@@ -3,7 +3,21 @@
 JS сорян
  */
 
+
 document.addEventListener("DOMContentLoaded", admin_panel_loaded);
+// let goods_categories = []
+let current_goods_category;
+let has_popups = false;  // Чтобы кучу попытов не открывало. Наверное так это делается, хз :)
+
+
+function GoodsItem(id, name, description, price, category, img_path) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.price = price;
+    this.category = category;
+    this.img_path = img_path;
+}
 
 function admin_panel_loaded() {
     console.log("Admin Panel page loaded");
@@ -12,7 +26,8 @@ function admin_panel_loaded() {
     let goods_category_select = document.getElementById("goods_category_select");
     get_categories().then(
         categories => {
-            console.log("Got categories: "+categories)
+            console.log("Got categories: "+categories);
+            // goods_categories = categories
             categories.forEach(
                 category => {
                     let opt = document.createElement('option');
@@ -29,7 +44,8 @@ function admin_panel_loaded() {
 }
 
 function on_category_select(event) {
-    let category = event.target.value
+    let category = event.target.value;
+    current_goods_category = category;
     get_goods_by_category(category).then(
         goods => console.log(goods)
     )
@@ -38,16 +54,78 @@ function on_category_select(event) {
 
 function addCard() {
     let goods_cards_div = document.getElementById("goods_cards_div");
-    let card = document.createElement("div")
-    card.className = "goods_item_card"
-    let img = document.createElement("img")
-    img.src = "../../static/pictures/plus-icon-black-2.png"
-    card.appendChild(img)
+    let card = document.createElement("div");
+    card.className = "goods_item_card";
+    let img = document.createElement("img");
+    img.src = "../../static/pictures/plus-icon-black-2.png";
+    card.appendChild(img);
 
-    let edit_btn = document.createElement("button")
-    edit_btn.value = "Edit"
-    card.appendChild(edit_btn)
-    goods_cards_div.appendChild(card)
+    let edit_btn = document.createElement("button");
+    edit_btn.value = "Edit";
+    card.appendChild(edit_btn);
+    goods_cards_div.appendChild(card);
+    card.addEventListener("click", on_add_card_click);
+}
+/*
+    Тут каша потомучто я не знаю как делить js код на части
+ */
+function on_add_card_click(event) {
+    has_popups ? console.log("Попыт уже открыт") : call_add_goods_item_popup()
+}
+
+function call_add_goods_item_popup() {
+    console.log("Adding card")
+    let popup_div = document.createElement("div");
+    popup_div.className = "popup_goods_item_edit";
+    let input_name = document.createElement("input");
+    input_name.placeholder = "Name";
+    let input_description = document.createElement("input");
+    input_description.placeholder = "Description";
+    let input_price = document.createElement("input");
+    input_price.placeholder = "Price";
+    let input_image = document.createElement("input");
+    input_image.type = "file"
+
+    // input_name.placeholder = "Category";
+    let btn_div = document.createElement("div");
+    btn_div.className = "btn_div"
+    let close_btn = document.createElement("div");
+    close_btn.className = "div-button"
+    close_btn.textContent = "Close";
+    let save_btn = document.createElement("div");
+    save_btn.className = "div-button"
+    save_btn.textContent = "Save";
+    btn_div.append(close_btn, save_btn)
+
+    popup_div.append(input_name, input_description, input_price, input_image, btn_div)
+
+    function card_save() {
+        let name = input_name.value;
+        let description = input_description.value;
+        let price = input_price.value;
+        let img = input_image.value;
+        let item = new GoodsItem(0, name, description, price, current_goods_category, img)  // как это работает? хз
+        console.log("Saving item: " + item);
+    }
+
+    function card_close() {
+        popup_div.remove();
+    }
+
+    document.addEventListener('keydown', (event) => {
+        // с горячими клавишами попизже
+        let name = event.key;
+        if (name === "Enter") {
+            card_save()
+        } else if (name === "Escape") {
+            card_close()
+        }
+    }, false);
+
+    let goods_cards_div = document.getElementById("goods_cards_div");
+    goods_cards_div.appendChild(popup_div)
+    has_popups = true;
+    // document.appendChild(popup_div)
 }
 
 
@@ -59,11 +137,9 @@ async function postData(url = '', data = {}) {
       'Content-Type': 'application/json'
     },
     redirect: 'follow', // manual, *follow, error
-    body: JSON.stringify(data) // body data type must match "Content-Type" header
+    body: JSON.stringify(data)
   });
-  // console.log(response)
-  // console.log(await response.text())
-  return response.json(); // parses JSON response into native JavaScript objects
+  return response.json();
 }
 
 async function get_categories() {

@@ -6,4 +6,88 @@
 .goods_item_card {
     width: 20%;
     border: #606c76 2px solid;
+    border-radius: 15px;
+    padding: 2%;
+    user-select: none;
+    cursor: pointer;
+}
+
+.goods_item_card button {
+    /*float: right;*/
+    /*background-color: aqua;*/
+}
+
+.goods_item_card img {
+    width: 100%;
+    height: 70%;
+    user-select: none;
+}
+
+.goods_item_card:hover {
+    /*width: 20%;*/
+    border: #610c86 3px solid;
+}
+
+.goods_item_card:active {
+    /*width: 20%;*/
+    border: #719cf6 1px solid;
+}
+
+.popup_goods_item_edit {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 50vw;
+    height: 30vh;
+    min-width: 400px;
+    min-height: 400px;
+    margin-top: -15vh;
+    margin-left: -25vw;
+    background: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 30px 90px #777;
+    z-index: 999;
+    padding: 30px;
+}
+.popup_goods_item_edit input {
+    width: 50%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.popup_goods_item_edit select {
+    width: 50%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.btn_div {
+    width: 50%;
+    padding: 5px;
+    /*margin-left: auto;*/
+    /*margin-right: auto;*/
+    margin-left: auto;
+    margin-right: 0;
+}
+
+.div-button {
+    color: black;
+    background-color: #7ea3ff;
+    display: inline-block;
+    border: #7ea3ff 2px solid;
+    border-radius: 5px;
+    padding: 10px;
+    margin: 15px;
+    user-select: none;
+    cursor: pointer;
+}
+.div-button:hover {
+    background-color: #b7dcff;
+    border: #7ea3ff 2px solid;
+}
+.div-button:active {
+    background-color: #6366ff;
+    border: #7ea3ff 2px solid;
 }
