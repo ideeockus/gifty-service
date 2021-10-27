@@ -1,14 +1,14 @@
-from typing import Optional
 from flask import request, abort, session, redirect, Blueprint, current_app, url_for, render_template
-
-import db
+from typing import Optional
 from app_config import admin_password, upload_dir
 from werkzeug.utils import secure_filename
-
-import utils
-import os
-
 from models import GoodsItem, GoodsCategory
+from utils.goods_xlx_importer import import_goods_from_xlx
+
+import os
+import io
+import db
+
 
 admin_panel = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -117,6 +117,33 @@ def edit_goods_item():
 
     item = GoodsItem(id=item_id, name=name, description=description, price=price, img_path=img_path, category=category)
 
-    db.edit_goods_item(item)
+    status = db.edit_goods_item(item)
 
-    return {"status": True}
+    return {"status": status}
+
+
+@admin_panel.post("/remove_goods_item")
+def remove_goods_item():
+    item_id = request.json.get("id")
+
+    if not isinstance(item_id, int):
+        current_app.logger.warning("Goods Item ID not provided")
+        abort(400, "Goods Item ID not provided")
+
+    status = db.del_goods_item_by_id(item_id)
+
+    return {"status": status}
+
+
+@admin_panel.post("/import_xlx_goods")
+def import_xlx_goods():
+    if 'goods_xlx' not in request.files:
+        abort(400, "no file attached")
+    goods_xlx = request.files['goods_xlx']
+    goods_xlx_in_memory = io.BytesIO()
+    goods_xlx.save(goods_xlx_in_memory)  # выгрузка в память
+
+    filename = secure_filename(goods_xlx.filename)
+    import_goods_from_xlx(goods_xlx_in_memory)
+
+    return {"status": True}, 201

@@ -52,6 +52,7 @@ function on_category_select(event) {
 
 
 function draw_add_card() {
+    /* Нарисовать карточку добавления */
     let goods_cards_div = document.getElementById("goods_cards_div");
     let card = document.createElement("div");
     card.className = "goods_item_card";
@@ -74,7 +75,7 @@ function on_add_card_click(event) {
     has_popups ? console.log("Попыт уже открыт") : call_add_goods_item_popup()
 }
 
-function call_card_popup(card_elem, save_btn_listener, close_btn_listener) {
+function call_card_popup(card_elem) {
     let popup_div = document.createElement("div");
     popup_div.className = "popup_goods_item_edit";
     let input_name = document.createElement("input");
@@ -85,29 +86,8 @@ function call_card_popup(card_elem, save_btn_listener, close_btn_listener) {
     input_price.placeholder = "Price";
     let input_image = document.createElement("input");
     input_image.type = "file"
-    let btn_div = document.createElement("div");
-    btn_div.className = "btn_div"
-    let close_btn = document.createElement("div");
-    close_btn.className = "div-button"
-    close_btn.textContent = "Close";
-    let save_btn = document.createElement("div");
-    save_btn.className = "div-button"
-    save_btn.textContent = "Save";
-    close_btn.addEventListener("click", close_btn_listener);
-    save_btn.addEventListener("click", save_btn_listener);
-    btn_div.append(close_btn, save_btn);
 
-    popup_div.append(input_name, input_description, input_price, input_image, btn_div)
-
-    popup_div.addEventListener('keydown', (event) => {
-        // с горячими клавишами попизже
-        let name = event.key;
-        if (name === "Enter") {
-            save_btn_listener()
-        } else if (name === "Escape") {
-            close_btn_listener()
-        }
-    }, false);
+    popup_div.append(input_name, input_description, input_price, input_image);
 
     let goods_cards_div = document.getElementById("goods_cards_div");
     goods_cards_div.appendChild(popup_div)
@@ -128,8 +108,40 @@ function call_card_popup(card_elem, save_btn_listener, close_btn_listener) {
 }
 
 function call_add_goods_item_popup() {
+    /* Попыт добавления нового товара */
     console.log("Adding item")
-    let [input_name, input_description, input_price, input_image, popup_div] = call_card_popup(null, card_save, card_close);
+    let [input_name, input_description, input_price, input_image, popup_div] = call_card_popup(null);
+
+    // кнопки попыта (круче чем симпл димпл)
+    let btn_div = document.createElement("div");
+    btn_div.className = "btn_div"
+    // копка закрытия (эх почему я не знаю реак)
+    let close_btn = document.createElement("div");
+    close_btn.className = "div-button";
+    close_btn.textContent = "Close";
+    close_btn.addEventListener("click", card_close);
+    // кнопка сохранения
+    let save_btn = document.createElement("div");
+    save_btn.className = "div-button";
+    save_btn.textContent = "Save";
+    save_btn.addEventListener("click", card_save);
+    // кнопка импорта товаров с экселя
+    let xlx_import_btn = document.createElement("div");
+    xlx_import_btn.className = "div-button";
+    xlx_import_btn.textContent = "Import xlx";
+    xlx_import_btn.addEventListener("click", import_goods_xlx);
+    btn_div.append(xlx_import_btn, close_btn, save_btn);
+    popup_div.appendChild(btn_div);
+
+    popup_div.addEventListener('keydown', (event) => {
+        // с горячими клавишами попизже
+        let name = event.key;
+        if (name === "Enter") {
+            card_save()
+        } else if (name === "Escape") {
+            card_close()
+        }
+    }, false);
 
     function card_save() {
         let name = input_name.value;
@@ -160,9 +172,32 @@ function call_add_goods_item_popup() {
         has_popups = false;
         popup_div.remove();
     }
+
+    function import_goods_xlx() {
+        card_close();
+        let xlx_input_field = document.createElement('input');
+        xlx_input_field.type = 'file';
+
+        xlx_input_field.addEventListener("change", (event) => {
+           let xlx_file = event.target.files[0];
+           if (xlx_file === undefined) {
+               return;
+           }
+           import_xlx_goods(xlx_file).then(
+               response => {
+                   let status = response['status'];
+                   console.log("Import goods xlx. Status: " + status);
+                   draw_cards();
+               }
+           );
+        });
+
+        xlx_input_field.click();
+    }
 }
 
 function draw_cards() {
+    /* Отрисовать карточки товара */
     let goods_cards_div = document.getElementById("goods_cards_div");
     let saved_scroll_y = window.scrollY;  // save scroll position
     goods_cards_div.innerHTML = ""; //clean
@@ -183,6 +218,7 @@ function draw_cards() {
 }
 
 function draw_goods_item_card(item) {
+    /* нарисовать карточку товара (1шт) */
     // item - GoodsItem
     let goods_cards_div = document.getElementById("goods_cards_div");
     let card = document.createElement("div");
@@ -213,10 +249,43 @@ function draw_goods_item_card(item) {
 }
 
 function on_goods_item_card_click(event) {
+    /* Обработчик нажатия на карточку товара */
     console.log("Editing item");
     let card = event.currentTarget;
-    console.log(card);
-    let [input_name, input_description, input_price, input_image, popup_div] = call_card_popup(card, card_save, card_close);
+    // console.log(card);
+    let [input_name, input_description, input_price, input_image, popup_div] = call_card_popup(card);
+    console.log(popup_div);
+
+    let btn_div = document.createElement("div");
+    btn_div.className = "btn_div"
+    // копка закрытия (эх почему я не знаю реак)
+    let close_btn = document.createElement("div");
+    close_btn.className = "div-button";
+    close_btn.textContent = "Close";
+    close_btn.addEventListener("click", card_close);
+    // кнопка сохранения
+    let save_btn = document.createElement("div");
+    save_btn.className = "div-button";
+    save_btn.textContent = "Save";
+    save_btn.addEventListener("click", card_save);
+    // кнопка удаления товара
+    let remove_goods_item_btn = document.createElement("div");
+    remove_goods_item_btn.className = "div-button";
+    remove_goods_item_btn.textContent = "Delete";
+    remove_goods_item_btn.addEventListener("click", on_remove_goods_item_click);
+    btn_div.append(remove_goods_item_btn, close_btn, save_btn);
+    popup_div.appendChild(btn_div);
+
+    popup_div.addEventListener('keydown', (event) => {
+        // с горячими клавишами попизже
+        let name = event.key;
+        if (name === "Enter") {
+            card_save()
+        } else if (name === "Escape") {
+            card_close()
+        }
+    }, false);
+
 
     function card_save() {
         let id = parseInt(card.dataset.id);
@@ -261,10 +330,20 @@ function on_goods_item_card_click(event) {
         has_popups = false;
         popup_div.remove();
     }
+
+    function on_remove_goods_item_click() {
+        card_close();
+         let item_id = parseInt(card.dataset.id);
+        remove_goods_item(item_id).then(response => {
+            let status = response['status'];
+            console.log("Remove goods item. Status: " + status);
+            draw_cards();
+        });
+    }
 }
 
 
-// ------------------ api methods ----------
+// ------------------ api methods -----------------
 async function postData(url = '', data = {}) {
   const response = await fetch(url, {
     method: 'POST',
@@ -311,6 +390,12 @@ async function edit_goods_item(item) {
     });
 }
 
+async function remove_goods_item(item_id) {
+    return postData("/admin/remove_goods_item", {
+        "id": item_id,
+    });
+}
+
 async function upload_picture(file) {
     // more info https://developer.mozilla.org/ru/docs/Web/API/File/Using_files_from_web_applications
     console.log("uploading file")
@@ -323,5 +408,14 @@ async function upload_picture(file) {
     let response = await fetch('/admin/upload_picture', {method: "POST", body: formData});
     return response.json()
 
+}
+
+async function import_xlx_goods(file) {
+    console.log("importing goods from xlx")
+    let formData = new FormData();
+
+    formData.append("goods_xlx", file);
+    let response = await fetch('/admin/import_xlx_goods', {method: "POST", body: formData});
+    return response.json()
 }
 
