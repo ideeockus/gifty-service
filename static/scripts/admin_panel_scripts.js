@@ -100,7 +100,7 @@ function call_card_popup(card_elem, save_btn_listener, close_btn_listener) {
 
     popup_div.append(input_name, input_description, input_price, input_image, btn_div)
 
-    document.addEventListener('keydown', (event) => {
+    popup_div.addEventListener('keydown', (event) => {
         // с горячими клавишами попизже
         let name = event.key;
         if (name === "Enter") {
@@ -220,26 +220,40 @@ function on_goods_item_card_click(event) {
     let [input_name, input_description, input_price, input_image, popup_div] = call_card_popup(card, card_save, card_close);
 
     function card_save() {
+        let id = parseInt(card.dataset.id);
         let name = input_name.value;
         let description = input_description.value;
         let price = parseFloat(input_price.value);
         let img = input_image.files[0];
-        let item = new GoodsItem(0, name, description, price, current_goods_category, img)  // как это работает? хз
+        let img_path = (img === undefined) ? card.dataset.img_path : "";
+        console.log(id, name, description, price, img);
+        let item = new GoodsItem(id, name, description, price, current_goods_category, img_path);
         console.log("Editing item: " + JSON.stringify(item));
 
-        upload_picture(img).then(
-            data => {
-                console.log(data);
-                item.img_path = data['img_path'];
-                edit_goods_item(item).then(
+        // лучше не смотрите на эту штуку
+        if (img !== undefined) {
+            upload_picture(img).then(
+                data => {
+                    console.log(data);
+                    item.img_path = data['img_path'];
+                    edit_goods_item(item).then(
+                        data => {
+                            let status = data['status'];
+                            console.log("edit goods item. success: " + status);
+                            draw_cards()
+                        }
+                    );
+                }
+            );
+        } else {
+            edit_goods_item(item).then(
                     data => {
-                        let item_id = data['item_id'];
-                        console.log("edit goods item: " + item_id);
+                        let status = data['status'];
+                        console.log("edit goods item. success: " + status);
                         draw_cards()
                     }
                 );
-            }
-        );
+        }
         has_popups = false;
         popup_div.remove();
     }

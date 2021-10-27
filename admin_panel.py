@@ -94,14 +94,18 @@ def upload_picture():
     if 'picture' not in request.files:
         abort(400, "no file attached")
     file = request.files['picture']
+    if not file:
+        abort(400, "No picture in request")
     if not is_image_file(file.filename):
         abort(400, "only pictures allowed")
 
-    img_path = os.path.join(upload_dir, secure_filename(file.filename))
+    filename = secure_filename(file.filename)
+    img_path = os.path.join(upload_dir, filename)
 
-    if file and is_image_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(upload_dir, filename))
+    # if file and is_image_file(file.filename):
+    #     filename = secure_filename(file.filename)
+    #     file.save(os.path.join(upload_dir, filename))
+    file.save(os.path.join(upload_dir, filename))
 
     return {"img_path": filename}, 201
 
@@ -152,6 +156,8 @@ def edit_goods_item():
     price = request.json.get("price")
     img_path = request.json.get("img_path")
     category = request.json.get("category")
+
+    print(item_id, name, description, price, img_path, category)
 
     if not isinstance(item_id, int):
         current_app.logger.warning("Goods Item ID not provided")
