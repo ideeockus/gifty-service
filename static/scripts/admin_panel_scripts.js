@@ -26,10 +26,9 @@ function admin_panel_loaded() {
 
     // load category list to select dropdown
     let goods_category_select = document.getElementById("goods_category_select");
-    get_categories().then(
+    get_categories().then(  // подтягивает список категорий с бека для отображения dropdown списка
         categories => {
             goods_categories = categories
-            // current_goods_category = Object.values(categories)[0]
             Object.keys(categories).forEach(
                 category => {
                     let opt = document.createElement('option');
@@ -42,7 +41,7 @@ function admin_panel_loaded() {
             goods_category_select.addEventListener('change', on_category_select);
             draw_cards();
         }
-    );  // подтягивает список категорий с бека для отображения dropdown списка
+    );
 }
 
 function on_category_select(event) {
