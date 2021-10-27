@@ -13,11 +13,6 @@ from models import GoodsItem, GoodsCategory
 admin_panel = Blueprint("admin", __name__, url_prefix="/admin")
 
 
-# def authorize_admin(password: str) -> Optional[str]:
-#     if password == admin_password:
-#         return utils.gen_auth_token()
-
-
 def is_image_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1] in {"png", "jpg", "jpeg"}
 
@@ -34,12 +29,6 @@ def is_authorized() -> bool:
 
 @admin_panel.get("/")
 def root():
-    # if "auth_token" in session:
-    #     auth_token = session.get("auth_token")
-    #     token_is_valid = db.validate_authorization(auth_token)
-    #     if token_is_valid:
-    #         return redirect(url_for("admin.panel"))
-    # return redirect(url_for("admin.signin"))
     return redirect(url_for("admin.panel")) if is_authorized() else redirect(url_for("admin.signin"))
 
 
@@ -68,29 +57,8 @@ def signin():
         return redirect(url_for("admin.panel"))  # add admin panel later
 
 
-# @admin_panel.route("/upload", methods=["GET", "POST"])
-# def upload_file():
-#     current_app.logger.debug(f"form: {request.form}")
-#     current_app.logger.debug(f"files: {request.files}")
-#     current_app.logger.debug(f"json: {request.json}")
-#     # for file in request.files:
-#     #     file.save(f"{upload_dir}{secure_filename(file.filename)}")
-#     if 'file' not in request.files:
-#         return redirect(request.url)
-#     file = request.files['file']
-#     if file and is_image_file(file.filename):
-#         filename = secure_filename(file.filename)
-#         file.save(os.path.join(upload_dir, filename))
-#         return "File uploaded"
-#     return "An error occurred"
-
-
 @admin_panel.post("/upload_picture")
 def upload_picture():
-    # current_app.logger.debug(f"form: {request.form}")
-    # current_app.logger.debug(f"files: {request.files}")
-    # current_app.logger.debug(f"json: {request.json}")
-    # current_app.logger.debug(f"data: {request.data}")
     if 'picture' not in request.files:
         abort(400, "no file attached")
     file = request.files['picture']
@@ -101,30 +69,9 @@ def upload_picture():
 
     filename = secure_filename(file.filename)
     img_path = os.path.join(upload_dir, filename)
-
-    # if file and is_image_file(file.filename):
-    #     filename = secure_filename(file.filename)
-    #     file.save(os.path.join(upload_dir, filename))
     file.save(os.path.join(upload_dir, filename))
 
     return {"img_path": filename}, 201
-
-# @admin_panel.post("/upload_picture/<filename>")
-# def upload_picture(filename):
-#     current_app.logger.debug(f"form: {request.form}")
-#     current_app.logger.debug(f"files: {request.files}")
-#     current_app.logger.debug(f"json: {request.json}")
-#     current_app.logger.debug(f"data: {request.data}")
-#     if "/" in filename:
-#         abort(400, "no subdirectories allowed")
-#     if not is_image_file(filename):
-#         abort(400, "only pictures allowed")
-#
-#     img_path = os.path.join(upload_dir, secure_filename(filename))
-#     with open(img_path, "wb") as fp:
-#         fp.write(request.data)
-#
-#     return img_path, 201
 
 
 @admin_panel.post("/add_goods_item")
