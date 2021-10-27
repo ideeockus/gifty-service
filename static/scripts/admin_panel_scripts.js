@@ -92,6 +92,8 @@ function call_card_popup(card_elem) {
     let goods_cards_div = document.getElementById("goods_cards_div");
     goods_cards_div.appendChild(popup_div)
     has_popups = true;
+    popup_div.tabIndex = 0;
+    popup_div.focus();
 
     if (card_elem !== null) {
         let name = card_elem.dataset.name;
@@ -254,7 +256,6 @@ function on_goods_item_card_click(event) {
     let card = event.currentTarget;
     // console.log(card);
     let [input_name, input_description, input_price, input_image, popup_div] = call_card_popup(card);
-    console.log(popup_div);
 
     let btn_div = document.createElement("div");
     btn_div.className = "btn_div"

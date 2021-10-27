@@ -1,4 +1,6 @@
 from openpyxl import load_workbook
+
+import db
 from models import GoodsItem
 from io import BytesIO
 import re
@@ -33,4 +35,5 @@ def import_goods_from_xlx(goods_xlsx: BytesIO):
     print("Parsing ")
     for row in ws.iter_rows(min_row=2, min_col=16, max_col=23, values_only=True):
         item = excel_row_to_item(row)
-        print(item.to_dict())
+        db.add_goods_item(item)
+        # print(item.to_dict())
