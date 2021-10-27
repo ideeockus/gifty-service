@@ -26,8 +26,8 @@ function admin_panel_loaded() {
     let goods_category_select = document.getElementById("goods_category_select");
     get_categories().then(
         categories => {
-            console.log("Got categories: "+categories);
             goods_categories = categories
+            // current_goods_category = Object.values(categories)[0]
             Object.keys(categories).forEach(
                 category => {
                     let opt = document.createElement('option');
@@ -36,6 +36,7 @@ function admin_panel_loaded() {
                     goods_category_select.appendChild(opt);
                 }
             )
+            current_goods_category = goods_categories[goods_category_select.value]
         }
     );  // подтягивает список категорий с бека для отображения dropdown списка
 
@@ -104,8 +105,9 @@ function call_add_goods_item_popup() {
     function card_save() {
         let name = input_name.value;
         let description = input_description.value;
-        let price = input_price.value;
+        let price = parseFloat(input_price.value);
         let img = input_image.files[0];
+        console.log("Category" + current_goods_category)
         let item = new GoodsItem(0, name, description, price, current_goods_category, img)  // как это работает? хз
         console.log("Saving item: " + JSON.stringify(item));
 
@@ -113,6 +115,13 @@ function call_add_goods_item_popup() {
             data => {
                 console.log(data);
                 item.img_path = data['img_path'];
+                add_goods_item(item).then(
+                    data => {
+                        let item_id = data['item_id'];
+                        console.log("new goods item: " + item_id);
+                        // update cards later
+                    }
+                );
             }
         );
         has_popups = false;
@@ -141,6 +150,12 @@ function call_add_goods_item_popup() {
     // document.appendChild(popup_div)
 }
 
+function draw_cards() {
+    // request item goods by category
+    // clean previous cards div
+    // for each draw card
+}
+
 
 // ------------------ api methods ----------
 async function postData(url = '', data = {}) {
@@ -166,9 +181,23 @@ async function get_goods_by_category(category) {
     return postData("/api/get_goods_by_category", {"category": category});
 }
 
+async function add_goods_item(item) {
+    // item - GoodsItem obj
+    return postData("/admin/add_goods_item", {
+        "name": item.name,
+        "description": item.description,
+        "price": item.price,
+        "img_path": item.img_path,
+        "category": item.category,
+    });
+}
+
 async function upload_picture(file) {
     // more info https://developer.mozilla.org/ru/docs/Web/API/File/Using_files_from_web_applications
     console.log("uploading file")
+    if (file === undefined) {
+        return ""
+    }
     let formData = new FormData();
 
     formData.append("picture", file);

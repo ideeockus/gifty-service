@@ -13,38 +13,52 @@ from models import GoodsItem, GoodsCategory
 admin_panel = Blueprint("admin", __name__, url_prefix="/admin")
 
 
-def authorize_admin(password: str) -> Optional[str]:
-    if password == admin_password:
-        return utils.gen_auth_token()
+# def authorize_admin(password: str) -> Optional[str]:
+#     if password == admin_password:
+#         return utils.gen_auth_token()
 
 
 def is_image_file(filename: str) -> bool:
     return "." in filename and filename.rsplit(".", 1)[1] in {"png", "jpg", "jpeg"}
 
 
+def is_authorized() -> bool:
+    if "auth_token" in session:
+        auth_token = session.get("auth_token")
+        token_is_valid = db.validate_authorization(auth_token)
+        if token_is_valid:
+            return True
+    return False
+
+
 @admin_panel.get("/")
 def root():
-    if "auth_token" in session:
-        # validate auth_token
-        return redirect(url_for("admin.panel"))
-    return redirect(url_for("admin.signin"))
+    # if "auth_token" in session:
+    #     auth_token = session.get("auth_token")
+    #     token_is_valid = db.validate_authorization(auth_token)
+    #     if token_is_valid:
+    #         return redirect(url_for("admin.panel"))
+    # return redirect(url_for("admin.signin"))
+    redirect(url_for("admin.panel")) if is_authorized() else redirect(url_for("admin.signin"))
 
 
 @admin_panel.get("/panel")
 def panel():
+    if not is_authorized():
+        redirect(url_for("admin.signin"))
     return render_template("admin/panel.html")
 
 
 @admin_panel.route("/signin", methods=["GET", "POST"])
 def signin():
+    if is_authorized():
+        redirect(url_for("admin.panel"))
+
     if request.method == "GET":
-        # return url_for("static", filename="pages/signin.html")
         return render_template("admin/signin.html")
     if request.method == "POST":
-        if "auth_token" in session:
-            pass  # check if token is valid
-        password = request.form.get("password")
-        auth_token = authorize_admin(password)
+        password_is_ok = request.form.get("password") == admin_password
+        auth_token = db.gen_new_auth_token()
         if auth_token is None:
             current_app.logger.info("admin authorization failed")
             abort(401)  # unauthorized error
@@ -119,6 +133,8 @@ def add_goods_item():
 
     if not isinstance(price, float) and not isinstance(price, int):
         abort(400, "price must me float value")
+    if category not in [category_code for category_code in GoodsCategory]:
+        abort(400, f"category {category} not exist")
     category = GoodsCategory(category)
 
     item = GoodsItem(name=name, description=description, price=price, img_path=img_path, category=category)
@@ -129,17 +145,24 @@ def add_goods_item():
 
 @admin_panel.post("/edit_goods_item")
 def edit_goods_item():
-    item_id = request.form.get("id")
-    if not item_id.isalnum():
+    item_id = request.json.get("id")
+    name = request.json.get("name")
+    description = request.json.get("description")
+    price = request.json.get("price")
+    img_path = request.json.get("img_path")
+    category = request.json.get("category")
+
+    if not isinstance(item_id, int):
         current_app.logger.warning("Goods Item ID not provided")
-        return "Goods Item ID not provided"
-    item_id = int(item_id)
+        abort(400, "Goods Item ID not provided")
+    if not isinstance(price, float) and not isinstance(price, int):
+        abort(400, "price must me float value")
+    if category not in [category_code for category_code in GoodsCategory]:
+        abort(400, f"category {category} not exist")
+    category = GoodsCategory(category)
 
-    current_app.logger.warning(f"{request.get_data()}")
-    current_app.logger.warning(f"{request.get_json()}")
+    item = GoodsItem(id=item_id, name=name, description=description, price=price, img_path=img_path, category=category)
 
-    name = request.form.get("name")
-    description = request.form.get("description")
-    cost = request.form.get("cost")
-    img_path = request.form.get("img_path")
-    category = request.form.get("category")
+    db.edit_goods_item(item)
+
+    return {"status": True}

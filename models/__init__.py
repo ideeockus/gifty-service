@@ -49,3 +49,14 @@ class GoodsItem(Base):
 
 # engine = create_engine(db_url, echo=False)
 # Base.metadata.create_all(engine)
+
+class AccountRole(Enum):
+    Admin = 0
+    User = 1
+
+
+class AuthToken(Base):
+    __tablename__ = "auth_tokens"
+    id = Column(Integer, primary_key=True)
+    token = Column(String)
+    expiration_date = Column(DateTime)
