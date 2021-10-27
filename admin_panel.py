@@ -27,6 +27,7 @@ def is_authorized() -> bool:
         auth_token = session.get("auth_token")
         token_is_valid = db.validate_authorization(auth_token)
         if token_is_valid:
+            current_app.logger.debug("User authorized")
             return True
     return False
 
@@ -39,20 +40,20 @@ def root():
     #     if token_is_valid:
     #         return redirect(url_for("admin.panel"))
     # return redirect(url_for("admin.signin"))
-    redirect(url_for("admin.panel")) if is_authorized() else redirect(url_for("admin.signin"))
+    return redirect(url_for("admin.panel")) if is_authorized() else redirect(url_for("admin.signin"))
 
 
 @admin_panel.get("/panel")
 def panel():
     if not is_authorized():
-        redirect(url_for("admin.signin"))
+        return redirect(url_for("admin.signin"))
     return render_template("admin/panel.html")
 
 
 @admin_panel.route("/signin", methods=["GET", "POST"])
 def signin():
     if is_authorized():
-        redirect(url_for("admin.panel"))
+        return redirect(url_for("admin.panel"))
 
     if request.method == "GET":
         return render_template("admin/signin.html")
@@ -102,7 +103,7 @@ def upload_picture():
         filename = secure_filename(file.filename)
         file.save(os.path.join(upload_dir, filename))
 
-    return {"img_path": img_path}, 201
+    return {"img_path": filename}, 201
 
 # @admin_panel.post("/upload_picture/<filename>")
 # def upload_picture(filename):

@@ -19,6 +19,7 @@ DbSession = sessionmaker(engine, expire_on_commit=False)
 # ---------------- db api for GoodsItem -------------------------
 def edit_goods_item(item: GoodsItem):
     with DbSession.begin() as session:  # DbSession.begin maintains a begin/commit/rollback block
+        print(item.to_dict())
         editing_item: GoodsItem = session.query(GoodsItem).filter(GoodsItem.id == item.id).scalar()
         current_app.logger.debug(editing_item)
 
