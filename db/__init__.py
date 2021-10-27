@@ -17,9 +17,11 @@ DbSession = sessionmaker(engine, expire_on_commit=False)
 
 
 # ---------------- db api for GoodsItem -------------------------
-def edit_goods_item(item: GoodsItem):
+def edit_goods_item(item: GoodsItem) -> bool:
     with DbSession.begin() as session:  # DbSession.begin maintains a begin/commit/rollback block
         editing_item: GoodsItem = session.query(GoodsItem).filter(GoodsItem.id == item.id).scalar()
+        if editing_item is None:
+            return False
         current_app.logger.debug(editing_item)
 
         editing_item.name = item.name
@@ -27,6 +29,7 @@ def edit_goods_item(item: GoodsItem):
         editing_item.price = item.price
         editing_item.img_path = item.img_path
         editing_item.category = item.category
+        return True
 
 
 def add_goods_item(item: GoodsItem) -> int:
@@ -41,13 +44,16 @@ def add_goods_item(item: GoodsItem) -> int:
     return item.id
 
 
-def del_goods_item_by_id(item_id: int):
+def del_goods_item_by_id(item_id: int) -> bool:
     current_app.logger.debug(f"deleting goods_item id={item_id}")
     session = DbSession()
-    item = session.query(GoodsItem).filter(GoodsItem.id == item_id)
+    item = session.query(GoodsItem).filter(GoodsItem.id == item_id).scalar()
+    if item is None:
+        return False
     session.delete(item)
     session.commit()
     session.close()
+    return True
 
 
 def get_goods_by_category(category: GoodsCategory) -> List[GoodsItem]:
