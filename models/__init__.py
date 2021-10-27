@@ -21,9 +21,9 @@ class BoxSize(Enum):
 #     Bonus = "Bonus"
 
 class GoodsCategory(IntEnum):
-    Base = 0
-    Packet = 1
-    Bonus = 2
+    Base = 1
+    Packet = 2
+    Bonus = 3
 
 
 # id | Name | Description | Category_id | Price | Path_img
@@ -35,6 +35,16 @@ class GoodsItem(Base):
     category = Column(sqlalchemyEnum(GoodsCategory))
     price = Column(Float)
     img_path = Column(String)
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "category": self.category,
+            "price": self.price,
+            "img_path": self.img_path,
+        }
 
 
 # engine = create_engine(db_url, echo=False)

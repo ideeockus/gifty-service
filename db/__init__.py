@@ -12,7 +12,7 @@ from flask import current_app
 
 engine = create_engine(db_url, echo=False)
 Base.metadata.create_all(engine)
-DbSession = sessionmaker(engine)
+DbSession = sessionmaker(engine, expire_on_commit=False)
 
 
 def edit_goods_item(item: GoodsItem):
@@ -27,7 +27,7 @@ def edit_goods_item(item: GoodsItem):
         editing_item.category = item.category
 
 
-def add_goods_item(item: GoodsItem):
+def add_goods_item(item: GoodsItem) -> int:
     # with DbSession.begin() as session:  # DbSession.begin maintains a begin/commit/rollback block
     #     session
     current_app.logger.debug(f"adding goods_item {item}")
@@ -35,6 +35,8 @@ def add_goods_item(item: GoodsItem):
     session.add(item)
     session.commit()
     session.close()
+
+    return item.id
 
 
 def del_goods_item_by_id(item_id: int):

@@ -1,11 +1,14 @@
 from typing import Optional
 from flask import request, abort, session, redirect, Blueprint, current_app, url_for, render_template
+
+import db
 from app_config import admin_password, upload_dir
 from werkzeug.utils import secure_filename
 
 import utils
 import os
 
+from models import GoodsItem, GoodsCategory
 
 admin_panel = Blueprint("admin", __name__, url_prefix="/admin")
 
@@ -50,22 +53,81 @@ def signin():
         return redirect(url_for("admin.panel"))  # add admin panel later
 
 
-@admin_panel.route("/upload", methods=["GET", "POST"])
-def upload_file():
-    current_app.logger.debug(f"files: {request.files}")
-    # for file in request.files:
-    #     file.save(f"{upload_dir}{secure_filename(file.filename)}")
-    if 'file' not in request.files:
-        return redirect(request.url)
-    file = request.files['file']
+# @admin_panel.route("/upload", methods=["GET", "POST"])
+# def upload_file():
+#     current_app.logger.debug(f"form: {request.form}")
+#     current_app.logger.debug(f"files: {request.files}")
+#     current_app.logger.debug(f"json: {request.json}")
+#     # for file in request.files:
+#     #     file.save(f"{upload_dir}{secure_filename(file.filename)}")
+#     if 'file' not in request.files:
+#         return redirect(request.url)
+#     file = request.files['file']
+#     if file and is_image_file(file.filename):
+#         filename = secure_filename(file.filename)
+#         file.save(os.path.join(upload_dir, filename))
+#         return "File uploaded"
+#     return "An error occurred"
+
+
+@admin_panel.post("/upload_picture")
+def upload_picture():
+    # current_app.logger.debug(f"form: {request.form}")
+    # current_app.logger.debug(f"files: {request.files}")
+    # current_app.logger.debug(f"json: {request.json}")
+    # current_app.logger.debug(f"data: {request.data}")
+    if 'picture' not in request.files:
+        abort(400, "no file attached")
+    file = request.files['picture']
+    if not is_image_file(file.filename):
+        abort(400, "only pictures allowed")
+
+    img_path = os.path.join(upload_dir, secure_filename(file.filename))
+
     if file and is_image_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(upload_dir, filename))
-        return "File uploaded"
-    return "An error occurred"
+
+    return {"img_path": img_path}, 201
+
+# @admin_panel.post("/upload_picture/<filename>")
+# def upload_picture(filename):
+#     current_app.logger.debug(f"form: {request.form}")
+#     current_app.logger.debug(f"files: {request.files}")
+#     current_app.logger.debug(f"json: {request.json}")
+#     current_app.logger.debug(f"data: {request.data}")
+#     if "/" in filename:
+#         abort(400, "no subdirectories allowed")
+#     if not is_image_file(filename):
+#         abort(400, "only pictures allowed")
+#
+#     img_path = os.path.join(upload_dir, secure_filename(filename))
+#     with open(img_path, "wb") as fp:
+#         fp.write(request.data)
+#
+#     return img_path, 201
 
 
-@admin_panel.post("/edit_item")
+@admin_panel.post("/add_goods_item")
+def add_goods_item():
+    # item_id = request.json.get("id")
+    name = request.json.get("name")
+    description = request.json.get("description")
+    price = request.json.get("price")
+    img_path = request.json.get("img_path")
+    category = request.json.get("category")
+
+    if not isinstance(price, float) and not isinstance(price, int):
+        abort(400, "price must me float value")
+    category = GoodsCategory(category)
+
+    item = GoodsItem(name=name, description=description, price=price, img_path=img_path, category=category)
+
+    item_id = db.add_goods_item(item)
+    return {"item_id": item_id}
+
+
+@admin_panel.post("/edit_goods_item")
 def edit_goods_item():
     item_id = request.form.get("id")
     if not item_id.isalnum():

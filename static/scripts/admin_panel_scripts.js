@@ -5,7 +5,7 @@ JS сорян
 
 
 document.addEventListener("DOMContentLoaded", admin_panel_loaded);
-// let goods_categories = []
+let goods_categories;
 let current_goods_category;
 let has_popups = false;  // Чтобы кучу попытов не открывало. Наверное так это делается, хз :)
 
@@ -27,8 +27,8 @@ function admin_panel_loaded() {
     get_categories().then(
         categories => {
             console.log("Got categories: "+categories);
-            // goods_categories = categories
-            categories.forEach(
+            goods_categories = categories
+            Object.keys(categories).forEach(
                 category => {
                     let opt = document.createElement('option');
                     opt.value = category;
@@ -44,9 +44,9 @@ function admin_panel_loaded() {
 }
 
 function on_category_select(event) {
-    let category = event.target.value;
-    current_goods_category = category;
-    get_goods_by_category(category).then(
+    let category_name = event.target.value;
+    current_goods_category = goods_categories[category_name];
+    get_goods_by_category(current_goods_category).then(
         goods => console.log(goods)
     )
 }
@@ -95,6 +95,8 @@ function call_add_goods_item_popup() {
     let save_btn = document.createElement("div");
     save_btn.className = "div-button"
     save_btn.textContent = "Save";
+    close_btn.addEventListener("click", card_close);
+    save_btn.addEventListener("click", card_save);
     btn_div.append(close_btn, save_btn)
 
     popup_div.append(input_name, input_description, input_price, input_image, btn_div)
@@ -103,12 +105,23 @@ function call_add_goods_item_popup() {
         let name = input_name.value;
         let description = input_description.value;
         let price = input_price.value;
-        let img = input_image.value;
+        let img = input_image.files[0];
         let item = new GoodsItem(0, name, description, price, current_goods_category, img)  // как это работает? хз
-        console.log("Saving item: " + item);
+        console.log("Saving item: " + JSON.stringify(item));
+
+        upload_picture(img).then(
+            data => {
+                console.log(data);
+                item.img_path = data['img_path'];
+            }
+        );
+        has_popups = false;
+        popup_div.remove();
+
     }
 
     function card_close() {
+        has_popups = false;
         popup_div.remove();
     }
 
@@ -151,5 +164,16 @@ async function get_categories() {
 async function get_goods_by_category(category) {
     // console.log(goods);
     return postData("/api/get_goods_by_category", {"category": category});
+}
+
+async function upload_picture(file) {
+    // more info https://developer.mozilla.org/ru/docs/Web/API/File/Using_files_from_web_applications
+    console.log("uploading file")
+    let formData = new FormData();
+
+    formData.append("picture", file);
+    let response = await fetch('/admin/upload_picture', {method: "POST", body: formData});
+    return response.json()
+
 }
 
