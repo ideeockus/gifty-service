@@ -1,3 +1,5 @@
+from typing import Optional
+
 from openpyxl import load_workbook
 
 import db
@@ -6,7 +8,7 @@ from io import BytesIO
 import re
 
 
-def excel_row_to_item(row: tuple) -> GoodsItem:
+def excel_row_to_item(row: tuple) -> Optional[GoodsItem]:
     name = row[0].strip() if row[0] else None
     description = row[1].strip() if row[1] else None
     category = row[2]
@@ -18,6 +20,8 @@ def excel_row_to_item(row: tuple) -> GoodsItem:
     # ))
     # price = min(prices) if prices else None  # min price
     price = sum(prices)/len(prices) if prices else None  # mean price
+    if all(x is None for x in [name, description, category, price]):  # все поля пустые
+        return None
     item = GoodsItem(
         name=name,
         description=description,
@@ -35,5 +39,7 @@ def import_goods_from_xlx(goods_xlsx: BytesIO):
     print("Parsing ")
     for row in ws.iter_rows(min_row=2, min_col=16, max_col=23, values_only=True):
         item = excel_row_to_item(row)
+        if item is None:
+            continue
         db.add_goods_item(item)
         # print(item.to_dict())
