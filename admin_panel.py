@@ -48,10 +48,13 @@ def signin():
         return render_template("admin/signin.html")
     if request.method == "POST":
         password_is_ok = request.form.get("password") == admin_password
-        auth_token = db.gen_new_auth_token()
-        if auth_token is None:
+        if not password_is_ok:
             current_app.logger.info("admin authorization failed")
             abort(401)  # unauthorized error
+        auth_token = db.gen_new_auth_token()
+        # if auth_token is None:
+        #     current_app.logger.info("admin authorization failed")
+        #     abort(401)  # unauthorized error
         session['auth_token'] = auth_token
         current_app.logger.info("admin authorized")
         return redirect(url_for("admin.panel"))  # add admin panel later
