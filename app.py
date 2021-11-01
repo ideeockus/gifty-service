@@ -1,6 +1,6 @@
 import logging
 
-from flask import Flask
+from flask import Flask, render_template
 from admin_panel import admin_panel
 from common_api import api
 import secrets
@@ -16,8 +16,8 @@ print(app.url_map)
 
 
 @app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
+def index():
+    return render_template("user/index.html")
 
 
 @app.errorhandler(404)
