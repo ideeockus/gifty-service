@@ -11,7 +11,7 @@ from flask import current_app
 import datetime
 import utils
 
-engine = create_engine(db_url, echo=False)
+engine = create_engine('sqlite:///db.sqlite3', echo=False)
 Base.metadata.create_all(engine)
 DbSession = sessionmaker(engine, expire_on_commit=False)
 

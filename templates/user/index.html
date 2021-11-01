@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Constructor</title>
+
+	<link rel="stylesheet" href="/static/styles/fontawesome.css">
+	<link rel="stylesheet" href="/static/styles/style.css">
+</head>
+<body>
+	<a id="mobile-button"><i class="fas fa-bars"></i></a>
+	<header>
+		<a href="#box"><i>🎁</i>Коробка</a>
+		<a href="#stuff_1"><i>🍫</i>Набор 1</a>
+		<a href="#stuff_2"><i>🍪</i>Набор 2</a>
+		<a href="#stuff_bonus"><i>🍦</i>Бонус</a>
+		<a href="#stuff_pocket"><i>🎉</i>Пакетики</a>
+		<a href="#delivery"><i>🚚</i>Доставка</a>
+		<a href="#payment"><i>💳</i>Оплата</a>
+	</header>
+	<form action="#" method="post" class="constructor">
+		<div class="wrapper" id="box">
+			<div class="form-tab">
+				<span class="form-tab-top"><i>🎁</i>Выберите коробку</span>
+				<div class="form-block form-row">
+					<div class="form-radio form-radio-active">
+						<label id="box_mini">Mini</label>
+						<i>👜</i>
+						<span>650 руб</span>
+						<input type="radio" name="box" id="box_mini" value="mini" selected>
+					</div>
+					<div class="form-radio">
+						<label for="box_midi">Midi</label>
+						<i>💼</i>
+						<span>1250 руб</span>
+						<input type="radio" name="box" id="box_midi" value="midi">
+					</div>
+					<div class="form-radio">
+						<label for="box_bigi">Bigi</label>
+						<i>📦</i>
+						<span>1550 руб</span>
+						<input type="radio" name="box" id="box_bigi" value="bigi">
+					</div>
+				</div>
+				<a href="#stuff_1">Продолжить</a>
+			</div>
+		</div>
+		<div class="wrapper" id="stuff_1">
+			<div class="form-tab" >
+				<span class="form-tab-top"><i>🍫</i>Выберите набор #1</span>
+				<div class="form-block form-row">
+					<div class="form-radio">
+						<label id="stuff_1_Snickers">Snickers</label>
+						<img src="/static/pictures/snickers.png" alt="snickers.png">
+						<span>60 руб</span>
+						<input type="radio" name="stuff_1" id="stuff_1_Snickers" value="Snickers">
+					</div>
+					<div class="form-radio form-radio-active">
+						<label id="stuff_1_Mars">Mars</label>
+						<img src="/static/pictures/mars.png" alt="Mars.png">
+						<span>60 руб</span>
+						<input type="radio" name="stuff_1" id="stuff_1_Mars" value="Mars" selected>
+					</div>
+					<div class="form-radio">
+						<label id="stuff_1_Nuts">Nuts</label>
+						<img src="/static/pictures/nuts.png" alt="Nuts.png">
+						<span>60 руб</span>
+						<input type="radio" name="stuff_1" id="stuff_1_Nuts" value="Nuts">
+					</div>
+					<div class="form-radio">
+						<label id="stuff_1_alpen_gold">Alpen Gold</label>
+						<img src="/static/pictures/alpen_gold.png" alt="alpen_gold.png">
+						<span>60 руб</span>
+						<input type="radio" name="stuff_1" id="stuff_1_alpen_gold" value="alpen_gold">
+					</div>
+				</div>
+				<a href="#stuff_2">Продолжить</a>
+			</div>
+		</div>
+		<div class="wrapper" id="stuff_2">
+			<div class="form-tab" >
+				<span class="form-tab-top"><i>🍪</i>Выберите набор #2</span>
+				<div class="form-block form-row">
+					<div class="form-radio">
+						<label id="stuff_2_Snickers">Snickers</label>
+						<img src="/static/pictures/snickers.png" alt="snickers.png">
+						<span>60 руб</span>
+						<input type="radio" name="stuff_2" id="stuff_2_Snickers" value="Snickers">
+					</div>
+					<div class="form-radio">
+						<label id="stuff_2_Mars">Mars</label>
+						<img src="/static/pictures/mars.png" alt="Mars.png">
+						<span>60 руб</span>
+						<input type="radio" name="stuff_2" id="stuff_2_Mars" value="Mars">
+					</div>
+					<div class="form-radio">
+						<label id="stuff_2_Nuts">Nuts</label>
+						<img src="/static/pictures/nuts.png" alt="Nuts.png">
+						<span>60 руб</span>
+						<input type="radio" name="stuff_2" id="stuff_2_Nuts" value="Nuts">
+					</div>
+					<div class="form-radio form-radio-active">
+						<label id="stuff_2_alpen_gold">Alpen Gold</label>
+						<img src="/static/pictures/alpen_gold.png" alt="alpen_gold.png">
+						<span>60 руб</span>
+						<input type="radio" name="stuff_2" id="stuff_2_alpen_gold" value="alpen_gold" selected>
+					</div>
+				</div>
+				<a href="#stuff_bonus">Продолжить</a>
+			</div>
+		</div>
+		<div class="wrapper"  id="stuff_bonus">
+			<div class="form-tab">
+				<span class="form-tab-top"><i>🍦</i>Выберите бонус</span>
+				<div class="form-block form-row">
+					<div class="form-radio form-radio-active">
+						<label id="stuff_bonus_Snickers">Snickers</label>
+						<img src="/static/pictures/snickers.png" alt="snickers.png">
+						<span>60 руб</span>
+						<input type="radio" name="stuff_bonus" id="stuff_bonus_Snickers" value="Snickers" selected>
+					</div>
+					<div class="form-radio">
+						<label id="stuff_bonus_Mars">Mars</label>
+						<img src="/static/pictures/mars.png" alt="Mars.png">
+						<span>60 руб</span>
+						<input type="radio" name="stuff_bonus" id="stuff_bonus_Mars" value="Mars">
+					</div>
+					<div class="form-radio">
+						<label id="stuff_bonus_Nuts">Nuts</label>
+						<img src="/static/pictures/nuts.png" alt="Nuts.png">
+						<span>60 руб</span>
+						<input type="radio" name="stuff_bonus" id="stuff_bonus_Nuts" value="Nuts">
+					</div>
+					<div class="form-radio">
+						<label id="stuff_bonus_alpen_gold">Alpen Gold</label>
+						<img src="/static/pictures/alpen_gold.png" alt="alpen_gold.png">
+						<span>60 руб</span>
+						<input type="radio" name="stuff_bonus" id="stuff_bonus_alpen_gold" value="alpen_gold">
+					</div>
+				</div>
+				<a href="#stuff_pocket">Продолжить</a>
+			</div>
+		</div>
+		<div class="wrapper" id="stuff_pocket">
+			<div class="form-tab">
+				<span class="form-tab-top"><i>🎉</i>Выберите пакетики</span>
+				<div class="form-block form-row">
+					
+					<div class="form-checkbox">
+						<label id="Счастье">Счастье</label>
+						<i>😋</i>
+						<input type="checkbox" name="pocket" id="Счастье" value="Счастье">
+					</div>
+
+					<div class="form-checkbox">
+						<label id="Грусть">Грусть</label>
+						<i>🥺</i>
+						<input type="checkbox" name="pocket" id="Грусть" value="Грусть">
+					</div>
+
+					<div class="form-checkbox form-radio-active">
+						<label id="Радость">Радость</label>
+						<i>😍</i>
+						<input type="checkbox" name="pocket" id="Радость" value="Радость" selected>
+					</div>
+
+					<div class="form-checkbox">
+						<label id="Горячо">Горячо</label>
+						<i>🔥</i>
+						<input type="checkbox" name="pocket" id="Горячо" value="Горячо">
+					</div>
+
+					<div class="form-checkbox">
+						<label id="Тепло">Тепло</label>
+						<i>🥳</i>
+						<input type="checkbox" name="pocket" id="Тепло" value="Тепло">
+					</div>
+
+					<div class="form-checkbox form-radio-active">
+						<label id="Слезы">Слезы</label>
+						<i>🤧</i>
+						<input type="checkbox" name="pocket" id="Слезы" value="Слезы" selected>
+					</div>
+
+					<div class="form-checkbox">
+						<label id="Веселье">Веселье</label>
+						<i>🤤</i>
+						<input type="checkbox" name="pocket" id="Веселье" value="Веселье">
+					</div>
+
+					<div class="form-checkbox">
+						<label id="Апатия">Апатия</label>
+						<i>🤧</i>
+						<input type="checkbox" name="pocket" id="Апатия" value="Апатия">
+					</div>
+
+					<div class="form-checkbox">
+						<label id="Злость">Злость</label>
+						<i>😕</i>
+						<input type="checkbox" name="pocket" id="Злость" value="Злость">
+					</div>
+
+					<div class="form-checkbox form-radio-active">
+						<label id="Заряжен">Заряжен</label>
+						<i>⚡</i>
+						<input type="checkbox" name="pocket" id="Заряжен" value="Заряжен" selected>
+					</div>
+
+				</div>
+				<a href="#delivery">Продолжить</a>
+			</div>
+		</div>
+		<div class="wrapper" id="delivery">
+			<div class="form-tab">
+				<span class="form-tab-top"><i>🚚</i>Доставка</span>
+				<div class="form-block">
+					<label>ФИО</label>
+					<input type="text" name="fio" placeholder="Иванов Иван Иванович">
+				</div>
+				<div class="form-block">
+					<label>Телефон</label>
+					<input type="tel" name="phone" placeholder="+7 (777) 777-77-77">
+				</div>
+				<div class="form-block">
+					<label>Email</label>
+					<input type="email" name="email" placeholder="ivan@email.com">
+				</div>
+				<div class="form-block">
+					<label>Город</label>
+					<select name="city">
+						<option value="Казань">Казань</option>
+						<option value="Москва">Москва</option>
+						<option value="Санкт-Петербург">Санкт-Петербург</option>
+					</select>
+				</div>
+				<div class="form-block">
+					<label>Адресс</label>
+					<input type="text" name="address" placeholder="ул. Тургенева 99">
+				</div>
+				<a href="#payment">Продолжить</a>
+			</div>
+		</div>
+		<div class="wrapper" id="payment">
+			<div class="form-tab">
+				<span class="form-tab-top"><i>💳</i>Оплата</span>
+				<div class="form-block form-row">
+					<div class="form-radio form-radio-active">
+						<label id="payment_cash">Наличными</label>
+						<i>💰</i>
+						<input type="radio" id="payment_cash" name="payment" value="Наличными" selected>
+					</div>
+					<div class="form-radio">
+						<label for="payment_card">Перевод</label>
+						<i>💳</i>
+						<input type="radio" id="payment_card" name="payment" value="Сбербанка">
+					</div>
+				</div>
+				<a href="#total">Продолжить</a>
+			</div>
+		</div>
+		<div class="wrapper" id="total">
+			<div class="form-tab">
+				<span class="form-tab-top">Итог</span>
+				<div class="form-block">
+					<a href="#box" class="form-line" id="box_line">
+						<span>Коробка - <b>Mini</b></span>
+						<span class="price">600 руб</span>
+					</a>
+					<a href="#stuff_1" class="form-line" id="stuff_1_line">
+						<span>Набор 1 - <b>Snickers</b></span>
+						<span class="price">60 руб</span>
+					</a>
+					<a href="#stuff_2" class="form-line" id="stuff_2_line">
+						<span>Набор 2 - <b>Alpen Gold</b></span>
+						<span class="price">60 руб</span>
+					</a>
+					<a href="#stuff_bonus" class="form-line" id="stuff_bonus_line">
+						<span>Бонус - <b>Milka печенье</b></span>
+						<span class="price">60 руб</span>
+					</a>
+					<a href="#stuff_pocket" class="form-line">
+						<span>Пакетик - <b>Веселье</b></span>
+						<span class="price">200 руб</span>
+					</a>
+					<a href="#stuff_pocket" class="form-line">
+						<span>Пакетик - <b>Радость</b></span>
+						<span class="price">200 руб</span>
+					</a>
+					<a href="#stuff_pocket" class="form-line">
+						<span>Пакетик - <b>Дождь</b></span>
+						<span class="price">200 руб</span>
+					</a>
+					<a href="#delivery" class="form-line" id="delivery_line">
+						<span>Доставка - <b>Казань</b></span>
+						<span class="price">150 руб</span>
+					</a>
+					<a href="#total" class="form-line" id="total-info">
+						<span>Общее</span>
+						<span class="total-price">150 руб</span>
+					</a>
+				</div>
+				<a href="#submit">Продолжить</a>
+			</div>
+		</div>
+		<div class="wrapper wrapper-button">
+			<button type="submit" id="submit">Отправить</button>
+		</div>
+	</form>
+
+	<script src="/static/scripts/fontawesome.js"></script>
+	<script src="/static/scripts/jquery.js"></script>
+	<script src="/static/scripts/scripts.js"></script>
+</body>
+</html>
