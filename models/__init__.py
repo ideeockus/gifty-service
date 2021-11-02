@@ -9,10 +9,10 @@ Base = declarative_base()  # декларативный базовый клас�
 # DbSession = sessionmaker(bind=engine, expire_on_commit=False)
 
 
-class BoxSize(Enum):
-    Mini = "Mini"
-    Midi = "Midi"
-    Bigi = "Bigi"
+class BoxType(Enum):
+    Mini = "mini"
+    Midi = "midi"
+    Bigi = "bigi"
 
 
 # class GoodsCategory(Enum):
@@ -60,3 +60,24 @@ class AuthToken(Base):
     id = Column(Integer, primary_key=True)
     token = Column(String)
     expiration_date = Column(DateTime)
+
+
+class OrderStatus(Enum):
+    New = "New"
+    Pending = "Pending"
+    Processing = "Processing"
+    Shipping = "Shipping"
+    Done = "Done"
+
+
+class Order(Base):
+    __tablename__ = "oders"
+    id = Column(Integer, primary_key=True)
+    box_type = Column(sqlalchemyEnum(BoxType))
+    status = Column(sqlalchemyEnum(OrderStatus))
+    customer_name = Column(String)
+    customer_email = Column(String)
+    customer_phone = Column(String)
+    customer_address = Column(String)
+    creation_date = Column(DateTime)
+

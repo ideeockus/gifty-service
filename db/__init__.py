@@ -6,9 +6,9 @@ from typing import List
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, select
 from app_config import db_url
-from models import Base, GoodsItem, GoodsCategory, AuthToken, AccountRole
+from models import Base, GoodsItem, GoodsCategory, AuthToken, AccountRole, Order, OrderStatus
 from flask import current_app
-import datetime
+from datetime import datetime, timedelta
 import utils
 
 engine = create_engine(db_url, echo=False)
@@ -69,7 +69,7 @@ def gen_new_auth_token() -> str:
     current_app.logger.debug(f"generating new auth token")
     session = DbSession()
     token = utils.gen_auth_token()
-    expiration_date = datetime.datetime.utcnow() + datetime.timedelta(days=10)
+    expiration_date = datetime.utcnow() + timedelta(days=10)
 
     auth_token = AuthToken(
         token=token,
@@ -87,3 +87,51 @@ def validate_authorization(token: str) -> bool:
     is_valid = session.query(AuthToken).filter(AuthToken.token == token).scalar() is not None
     session.close()
     return is_valid
+
+
+# ---------------------- db api for order creation -----------------
+def create_new_order(order: Order) -> int:
+    current_app.logger.debug(f"creating order {order}")
+    if order.creation_date is None:
+        order.creation_date = datetime.utcnow()
+    order.status = OrderStatus.New
+
+    session = DbSession()
+    session.add(order)
+    session.commit()
+    session.close()
+
+    return order.id
+
+
+def get_order_by_id(order_id: int) -> Order:
+    session = DbSession()
+    order = session.query(Order).filter(Order.id == order_id).scalar()
+    session.close()
+
+    return order
+
+
+def get_orders_by_status(order_status: OrderStatus) -> List[Order]:
+    session = DbSession()
+    orders = list(session.query(Order).filter(Order.status == order_status).all())
+    session.close()
+
+    return orders
+
+
+def get_order_status_by_id(order_id: int) -> OrderStatus:
+    session = DbSession()
+    order = session.query(Order).filter(Order.id == order_id).scalar()
+    session.close()
+
+    return order.status
+
+
+def set_order_status_by_id(order_id: int, order_status: OrderStatus) -> bool:
+    session = DbSession()
+    order = session.query(Order).filter(Order.id == order_id).scalar()
+    order.status = order_status
+    session.close()
+
+    return True
