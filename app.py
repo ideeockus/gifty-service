@@ -5,6 +5,7 @@ from flask.json import JSONEncoder
 from admin_panel import admin_panel
 from common_api import api
 from datetime import datetime
+from enum import Enum
 import secrets
 
 
@@ -13,6 +14,9 @@ class ServiceCustomJsonEncoder(JSONEncoder):
         try:
             if isinstance(obj, datetime):
                 return obj.isoformat()
+            if isinstance(obj, Enum):
+                return obj.value
+
             iterable = iter(obj)
         except TypeError:
             pass

@@ -99,7 +99,7 @@ def validate_authorization(token: str) -> bool:
 
 
 # ---------------------- db api for order creation -----------------
-def create_new_order(order: Order, goods_ids: List[int]) -> Order:
+def create_new_order(order: Order, goods_ids: List[int]) -> int:
     current_app.logger.debug(f"creating order {order}")
     if order.creation_date is None:
         order.creation_date = datetime.utcnow()
@@ -118,15 +118,16 @@ def create_new_order(order: Order, goods_ids: List[int]) -> Order:
     session.commit()
     session.close()
 
-    return order
+    return order.id
 
 
-def get_order_by_id(order_id: int) -> Order:
+def get_order_by_id_as_dict(order_id: int) -> dict:
     session = DbSession()
     order = session.query(Order).filter(Order.id == order_id).scalar()
+    order_dict = order.to_dict()
     session.close()
 
-    return order
+    return order_dict
 
 
 def get_orders_by_status(order_status: OrderStatus) -> List[Order]:

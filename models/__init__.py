@@ -103,7 +103,7 @@ class Order(Base):
                 goods.append(goods_item)
         return {
             "id": self.id,
-            "box_type": self.box_type,
+            "box_type": self.box_type.value,
             "status": self.status.value if self.status is not None else None,
             "customer_name": self.customer_name,
             "customer_email": self.customer_email,

@@ -43,9 +43,11 @@ def create_order():
 
     if None in (goods_ids, customer_name, customer_email, customer_address, customer_phone, box_type):
         abort(401, "Bad request")
+    if box_type not in [bt.value for bt in models.BoxType]:
+        abort(401, "Invalid box type")
 
     order: models.Order = models.Order(
-        box_type=box_type,
+        box_type=models.BoxType(box_type),
         customer_name=customer_name,
         customer_email=customer_email,
         customer_phone=customer_phone,
@@ -53,8 +55,23 @@ def create_order():
         comment=comment
     )
 
-    db.create_new_order(order, goods_ids)
+    order_id = db.create_new_order(order, goods_ids)
 
-    result = order.to_dict()
-    return jsonify(result)
+    return jsonify({"order_id": order_id})
+
+
+@api.post("/get_order")
+def get_order():
+    order_id = request.json.get('order_id')
+    order = db.get_order_by_id_as_dict(order_id)
+
+    return jsonify(order)
+
+
+@api.post("/get_order_status")
+def get_order_status():
+    order_id = request.json.get('order_id')
+    order_status = db.get_order_status_by_id(order_id)
+
+    return jsonify({"order_status": order_status})
 
