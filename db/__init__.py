@@ -6,9 +6,10 @@ from typing import List
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine, select
 from app_config import db_url
-from models import Base, GoodsItem, GoodsCategory, AuthToken, AccountRole, Order, OrderStatus
+from models import Base, GoodsItem, GoodsCategory, AuthToken, AccountRole, Order, OrderStatus, OrdersGoodsAssociation
 from flask import current_app
 from datetime import datetime, timedelta
+from collections import Counter
 import utils
 
 engine = create_engine(db_url, echo=False)
@@ -56,6 +57,14 @@ def del_goods_item_by_id(item_id: int) -> bool:
     return True
 
 
+def get_goods_by_ids(goods_ids: List[int]) -> List[GoodsItem]:
+    session = DbSession()
+    goods: List[GoodsItem] = session.query(GoodsItem).filter(GoodsItem.id.in_(goods_ids)).all()
+    session.close()
+
+    return goods
+
+
 def get_goods_by_category(category: GoodsCategory) -> List[GoodsItem]:
     session = DbSession()
     goods: List[GoodsItem] = session.query(GoodsItem).filter(GoodsItem.category == category).all()
@@ -90,18 +99,26 @@ def validate_authorization(token: str) -> bool:
 
 
 # ---------------------- db api for order creation -----------------
-def create_new_order(order: Order) -> int:
+def create_new_order(order: Order, goods_ids: List[int]) -> Order:
     current_app.logger.debug(f"creating order {order}")
     if order.creation_date is None:
         order.creation_date = datetime.utcnow()
     order.status = OrderStatus.New
+    goods = get_goods_by_ids(goods_ids)
+
+    goods_amount_by_id = Counter(goods_ids)
+
+    for goods_item in goods:
+        goods_association = OrdersGoodsAssociation(goods_count=goods_amount_by_id[goods_item.id])
+        goods_association.goods_item = goods_item
+        order.goods.append(goods_association)
 
     session = DbSession()
     session.add(order)
     session.commit()
     session.close()
 
-    return order.id
+    return order
 
 
 def get_order_by_id(order_id: int) -> Order:
