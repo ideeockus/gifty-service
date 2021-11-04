@@ -415,7 +415,7 @@ i {
 	font-weight: bold;
 }
 .track-status h2 {
-	font-size: 25px;
+	font-size: 30px;
 }
 .track-status a {
 	display: flex;
@@ -489,6 +489,9 @@ i {
 .check {
 	height: auto;
 }
+.check .track-status h2 {
+	font-weight: bold;
+}
 .track-wrapper {
 	background-image: url('../webfonts/background.svg');
 	background-position: 0 0, 50px 50px;
@@ -502,7 +505,7 @@ i {
 }
 
 .check .track-status {
-	color: #f28c4a;
+	color: #388f7a;
 	font-weight: bold;
 }
 
@@ -510,6 +513,8 @@ i {
 	display: flex;
 	flex-direction: column;
 	width: 90%;
+	background: #fff;
+	border-radius: 15px;
 }
 
 .check-list li {
@@ -524,7 +529,7 @@ i {
 
 
 .check-list li:last-child {
-	border-top: 1px solid #f28c4a;
+	border-top: 1px solid #fbdc71;
 }
 
 .check-list li:hover {
