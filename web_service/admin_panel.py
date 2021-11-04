@@ -1,4 +1,4 @@
-from flask import request, abort, session, redirect, Blueprint, current_app, url_for, render_template, jsonify
+from flask import request, abort, redirect, Blueprint, current_app, url_for, render_template, jsonify
 from typing import Optional
 from app_config import admin_password, upload_dir
 from werkzeug.utils import secure_filename
@@ -32,12 +32,13 @@ def is_authorized(auth_token: Optional[str]) -> bool:
 def check_authorized(func):
     @wraps(func)
     def decor(*args, **kwargs):
-        request_data = request.json
-        if request_data is None:
+        request_headers = request.headers  # auth_token должен быть в headers
+        print(request_headers)
+        if request_headers is None:
             current_app.logger.debug("No data in request")
             return redirect(url_for("admin.signin"))
         else:
-            req = models.api.CommonAdminRequest(**request_data)
+            req = models.api.AuthTokenHeader(**request_headers)
             if not is_authorized(req.auth_token):
                 return redirect(url_for("admin.signin"))
         return func()
@@ -47,7 +48,7 @@ def check_authorized(func):
 @admin_panel.get("/")
 @check_authorized
 def root():
-    # req = models.api.CommonAdminRequest(**request.json)
+    # req = models.api.AuthTokenHeader(**request.json)
     return redirect(url_for("admin.panel"))
         # if is_authorized(req.auth_token) else redirect(url_for("admin.signin"))
 
@@ -55,7 +56,7 @@ def root():
 @admin_panel.get("/panel")
 @check_authorized
 def panel():
-    # req = models.api.CommonAdminRequest(**request.json)
+    # req = models.api.AuthTokenHeader(**request.json)
     # if not is_authorized(req.auth_token):
     #     return redirect(url_for("admin.signin"))
     return render_template("admin/panel.html")
@@ -89,7 +90,7 @@ def signin():
         return render_template("admin/signin.html")
     if request.method == "POST":
         req = models.api.AdminSignInRequest(**request.json)
-        if is_authorized(req.auth_token):
+        if is_authorized(request.headers.get("Auth-Token")):
             return redirect(url_for("admin.panel"))
 
         password_is_ok = req.password == admin_password
@@ -109,13 +110,16 @@ def signin():
 
 
 @admin_panel.post("/upload_picture")
+@check_authorized
 def upload_picture():
-    # req = models.api.CommonAdminRequest(**request.json)
-    req = request.form
-    req.auth_token = req['auth_token']  # пока все в форме будет, потом надо будет файл нормально отправлять
-
-    if not is_authorized(req.auth_token):
-        return redirect(url_for("admin.signin"))
+    print("Uploading file")
+    print(request.files)
+    # req = models.api.AuthTokenHeader(**request.json)
+    # req = request.form
+    # req.auth_token = req['auth_token']  # пока все в форме будет, потом надо будет файл нормально отправлять
+    #
+    # if not is_authorized(req.auth_token):
+    #     return redirect(url_for("admin.signin"))
     if 'picture' not in request.files:
         raise RequestFailed
     file = request.files['picture']
@@ -140,8 +144,8 @@ def upload_picture():
 def add_goods_item():
     req = models.api.AddGoodsItemRequest(**request.json)
 
-    if not is_authorized(req.auth_token):
-        return redirect(url_for("admin.signin"))
+    # if not is_authorized(req.auth_token):
+    #     return redirect(url_for("admin.signin"))
     # name = request.json.get("name")
     # description = request.json.get("description")
     # price = request.json.get("price")

@@ -1,5 +1,5 @@
 from typing import Optional, Union
-from pydantic import BaseModel, FilePath, EmailStr, constr
+from pydantic import BaseModel, FilePath, EmailStr, constr, Field
 from enum import Enum
 from models import GoodsCategory
 
@@ -11,8 +11,11 @@ class ResponseStatus(Enum):
     Failed = "failed"
 
 
-class CommonAdminRequest(BaseModel):
-    auth_token: Optional[str]
+# class CommonAdminRequest(BaseModel):
+#     auth_token: Optional[str]
+
+class AuthTokenHeader(BaseModel):
+    auth_token: Optional[str] = Field(alias="Auth-Token")
 
 
 class CommonResponse(BaseModel):
@@ -20,7 +23,7 @@ class CommonResponse(BaseModel):
 
 
 # --------- admin api dataclasses ------------
-class AdminSignInRequest(CommonAdminRequest):
+class AdminSignInRequest(BaseModel):
     password: Optional[str]
 
 class AdminSignInResponse(CommonResponse):
@@ -31,7 +34,7 @@ class UploadPictureResponse(CommonResponse):
     img_path: str
 
 
-class AddGoodsItemRequest(CommonAdminRequest):
+class AddGoodsItemRequest(BaseModel):
     name: str
     description: Optional[str]
     price: Union[int, float]
@@ -42,7 +45,7 @@ class AddGoodsItemResponse(CommonResponse):
     item_id: int
 
 
-class EditGoodsItemRequest(CommonAdminRequest):
+class EditGoodsItemRequest(BaseModel):
     item_id: int
     name: str
     description: Optional[str]
@@ -51,5 +54,9 @@ class EditGoodsItemRequest(CommonAdminRequest):
     category: GoodsCategory
 
 
-class RemoveGoodsItemRequest(CommonAdminRequest):
+class RemoveGoodsItemRequest(BaseModel):
     item_id: int
+
+# ---------- user api dataclasses --------
+
+
