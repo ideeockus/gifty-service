@@ -82,7 +82,9 @@ select{
 	border: 1px solid #ccc;
 	border-radius: 7px;
 }
-button {
+
+.wrapper-button button,
+.wrapper-button a {
 	display: flex;
 	padding: 20px;
 	outline: none;
@@ -353,7 +355,8 @@ i {
 	margin: auto;
 	justify-content: center;
 	flex-direction: column;
-	width: 350px;
+	/*width: 350px;*/
+	width: 25%;
 }
 /* Track logo */
 .track-logo {
@@ -401,6 +404,11 @@ i {
 	border-radius: 15px;
 	font-family: 'Roboto';
 	font-weight: 500;
+	box-shadow: 0px 5px 10px 2px rgb(34 60 80 / 20%);
+	cursor: pointer;
+}
+.track-status:hover {
+	box-shadow: 0px 5px 10px 10px rgb(34 60 80 / 20%);
 }
 .track-status > * {
 	margin: 15px 0;
@@ -476,6 +484,53 @@ i {
     font-weight: bold;
 }
 
+
+/* Check Page */
+.check {
+	height: auto;
+}
+.track-wrapper {
+	background-image: url('../webfonts/background.svg');
+	background-position: 0 0, 50px 50px;
+	height: 50px;
+	width: 90%;
+	padding: 5px;
+}
+.check .track-status {
+	background: #fbdc71;
+	overflow-x: hidden;
+}
+
+.check .track-status {
+	color: #f28c4a;
+	font-weight: bold;
+}
+
+.check-list {
+	display: flex;
+	flex-direction: column;
+	width: 90%;
+}
+
+.check-list li {
+	display: flex;
+	justify-content: space-between;
+	padding: 15px;
+	margin: 10px 0;
+	cursor: pointer;
+	border: 1px solid transparent;
+}
+
+
+
+.check-list li:last-child {
+	border-top: 1px solid #f28c4a;
+}
+
+.check-list li:hover {
+	box-shadow: 0px 5px 10px 10px rgb(34 60 80 / 20%);
+}
+
 /* Tablets  */
 @media screen and (min-width: 763px) and (max-width: 1024px){
 	#delivery .form-block label {
@@ -537,6 +592,10 @@ i {
 	.track {
 		height: 90vh;
 		width: 92%;
+	}
+
+	.check {
+		height: auto;
 	}
 
 }
