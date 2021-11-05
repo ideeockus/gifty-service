@@ -1,11 +1,10 @@
 from typing import Optional
-
 from openpyxl import load_workbook
-
-import db
 from models import GoodsItem
 from io import BytesIO
+
 import re
+import db
 
 
 def excel_row_to_item(row: tuple) -> Optional[GoodsItem]:

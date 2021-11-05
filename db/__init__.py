@@ -1,26 +1,25 @@
-"""
-This module provides API to work with db
-"""
-from typing import List
-
+""" This module provides API to work with db """
+from typing import List, Optional
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine
 from app_config import db_url
-from models import Base, GoodsItem, GoodsCategory, AuthToken, AccountRole, Order, OrderStatus, OrdersGoodsAssociation
+from models import GoodsItem, GoodsCategory, AccountRole, OrderStatus, Order, BoxType
+from models import orm
 from flask import current_app
 from datetime import datetime, timedelta
 from collections import Counter
+
 import utils
 
 engine = create_engine(db_url, echo=False)
-Base.metadata.create_all(engine)
-DbSession = sessionmaker(engine, expire_on_commit=False)
+orm.Base.metadata.create_all(engine)
+DbSession = sessionmaker(engine)
 
 
-# ---------------- db api for GoodsItem -------------------------
+# ---------------- db user_api for GoodsItem -------------------------
 def edit_goods_item(item: GoodsItem) -> bool:
     with DbSession.begin() as session:  # DbSession.begin maintains a begin/commit/rollback block
-        editing_item: GoodsItem = session.query(GoodsItem).filter(GoodsItem.id == item.id).scalar()
+        editing_item: orm.GoodsItemORM = session.query(orm.GoodsItemORM).filter(orm.GoodsItemORM.id == item.id).scalar()
         if editing_item is None:
             return False
         current_app.logger.debug(editing_item)
@@ -34,22 +33,23 @@ def edit_goods_item(item: GoodsItem) -> bool:
 
 
 def add_goods_item(item: GoodsItem) -> int:
-    # with DbSession.begin() as session:  # DbSession.begin maintains a begin/commit/rollback block
-    #     session
     current_app.logger.debug(f"adding goods_item {item}")
+    item_orm = orm.GoodsItemORM(**item.dict())
     session = DbSession()
-    session.add(item)
+    session.add(item_orm)
     session.commit()
+    item_id = item_orm.id
     session.close()
 
-    return item.id
+    return item_id
 
 
 def del_goods_item_by_id(item_id: int) -> bool:
     current_app.logger.debug(f"deleting goods_item id={item_id}")
     session = DbSession()
-    item = session.query(GoodsItem).filter(GoodsItem.id == item_id).scalar()
+    item = session.query(orm.GoodsItemORM).filter(orm.GoodsItemORM.id == item_id).scalar()
     if item is None:
+        session.close()
         return False
     session.delete(item)
     session.commit()
@@ -59,7 +59,8 @@ def del_goods_item_by_id(item_id: int) -> bool:
 
 def get_goods_by_ids(goods_ids: List[int]) -> List[GoodsItem]:
     session = DbSession()
-    goods: List[GoodsItem] = session.query(GoodsItem).filter(GoodsItem.id.in_(goods_ids)).all()
+    goods_orm: List[orm.GoodsItemORM] = session.query(orm.GoodsItemORM).filter(orm.GoodsItemORM.id.in_(goods_ids)).all()
+    goods = [GoodsItem.from_orm(goods_item_orm) for goods_item_orm in goods_orm]
     session.close()
 
     return goods
@@ -67,20 +68,22 @@ def get_goods_by_ids(goods_ids: List[int]) -> List[GoodsItem]:
 
 def get_goods_by_category(category: GoodsCategory) -> List[GoodsItem]:
     session = DbSession()
-    goods: List[GoodsItem] = session.query(GoodsItem).filter(GoodsItem.category == category).all()
+    goods_orm: List[orm.GoodsItemORM] = session.query(orm.GoodsItemORM).filter(
+        orm.GoodsItemORM.category == category).all()
+    goods = [GoodsItem.from_orm(goods_item_orm) for goods_item_orm in goods_orm]
     session.close()
 
     return goods
 
 
-# ------------------------- db api for AuthToken ----------------
+# ------------------------- db user_api for AuthToken ----------------
 def gen_new_auth_token() -> str:
     current_app.logger.debug(f"generating new auth token")
     session = DbSession()
     token = utils.gen_auth_token()
     expiration_date = datetime.utcnow() + timedelta(days=10)
 
-    auth_token = AuthToken(
+    auth_token = orm.AuthTokenORM(
         token=token,
         expiration_date=expiration_date,
     )
@@ -93,46 +96,58 @@ def gen_new_auth_token() -> str:
 def validate_authorization(token: str) -> bool:
     current_app.logger.debug(f"validating token")
     session = DbSession()
-    is_valid = session.query(AuthToken).filter(AuthToken.token == token).scalar() is not None
+    is_valid = session.query(orm.AuthTokenORM).filter(orm.AuthTokenORM.token == token).scalar() is not None
     session.close()
     return is_valid
 
 
-# ---------------------- db api for order creation -----------------
-def create_new_order(order: Order, goods_ids: List[int]) -> int:
-    current_app.logger.debug(f"creating order {order}")
-    if order.creation_date is None:
-        order.creation_date = datetime.utcnow()
-    order.status = OrderStatus.New
-    goods = get_goods_by_ids(goods_ids)
+# ---------------------- db user_api for Order -----------------
+
+def create_new_order(box_type: BoxType, customer_name: str, customer_email: str, customer_phone: str,
+                     customer_address: str, comment: Optional[str], goods_ids: List[int]) -> int:
+    current_app.logger.debug(f"Creating order")
+    order_orm = orm.OrderORM(
+        box_type=box_type,
+        customer_name=customer_name,
+        customer_email=customer_email,
+        customer_phone=customer_phone,
+        customer_address=customer_address,
+        comment=comment,
+        creation_date=datetime.utcnow(),
+        status=OrderStatus.New
+    )
+
+    session = DbSession()
+    goods_orm: List[orm.GoodsItemORM] = session.query(orm.GoodsItemORM).filter(orm.GoodsItemORM.id.in_(goods_ids)).all()
 
     goods_amount_by_id = Counter(goods_ids)
 
-    for goods_item in goods:
-        goods_association = OrdersGoodsAssociation(goods_count=goods_amount_by_id[goods_item.id])
+    for goods_item in goods_orm:
+        goods_association = orm.OrdersGoodsAssociationORM(goods_count=goods_amount_by_id[goods_item.id])
         goods_association.goods_item = goods_item
-        order.goods.append(goods_association)
+        order_orm.goods.append(goods_association)
 
-    session = DbSession()
-    session.add(order)
+    session.add(order_orm)
     session.commit()
+    order_id = order_orm.id
     session.close()
 
-    return order.id
+    return order_id
 
 
-def get_order_by_id_as_dict(order_id: int) -> dict:
-    session = DbSession()
-    order = session.query(Order).filter(Order.id == order_id).scalar()
-    order_dict = order.to_dict()
-    session.close()
+def get_order_by_id(order_id: int) -> Order:
+    with DbSession() as session:
+        order_orm = session.query(orm.OrderORM).filter(orm.OrderORM.id == order_id).scalar()
+        order = Order.from_orm(order_orm)
+        session.close()
 
-    return order_dict
+        return order
 
 
 def get_orders_by_status(order_status: OrderStatus) -> List[Order]:
     session = DbSession()
-    orders = list(session.query(Order).filter(Order.status == order_status).all())
+    orders_orm = list(session.query(orm.OrderORM).filter(orm.OrderORM.status == order_status).all())
+    orders = [Order.from_orm(order_orm) for order_orm in orders_orm]
     session.close()
 
     return orders
@@ -140,7 +155,7 @@ def get_orders_by_status(order_status: OrderStatus) -> List[Order]:
 
 def get_order_status_by_id(order_id: int) -> OrderStatus:
     session = DbSession()
-    order = session.query(Order).filter(Order.id == order_id).scalar()
+    order = session.query(orm.OrderORM).filter(orm.OrderORM.id == order_id).scalar()
     session.close()
 
     return order.status
@@ -148,8 +163,9 @@ def get_order_status_by_id(order_id: int) -> OrderStatus:
 
 def set_order_status_by_id(order_id: int, order_status: OrderStatus) -> bool:
     session = DbSession()
-    order = session.query(Order).filter(Order.id == order_id).scalar()
+    order = session.query(orm.OrderORM).filter(orm.OrderORM.id == order_id).scalar()
     order.status = order_status
+    session.commit()
     session.close()
 
     return True
