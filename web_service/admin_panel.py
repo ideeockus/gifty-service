@@ -47,40 +47,13 @@ def check_authorized(func):
 @admin_panel.get("/")
 @check_authorized
 def root():
-    # req = models.user_api.AuthTokenHeader(**request.json)
     return redirect(url_for("admin.panel"))
-        # if is_authorized(req.auth_token) else redirect(url_for("admin.signin"))
 
 
 @admin_panel.get("/panel")
 @check_authorized
 def panel():
-    # req = models.user_api.AuthTokenHeader(**request.json)
-    # if not is_authorized(req.auth_token):
-    #     return redirect(url_for("admin.signin"))
     return render_template("admin/panel.html")
-
-
-# @admin_panel.route("/signin", methods=["GET", "POST"])
-# @validate()
-# def signin():
-#     if is_authorized():
-#         return redirect(url_for("admin.panel"))
-#
-#     if request.method == "GET":
-#         return render_template("admin/signin.html")
-#     if request.method == "POST":
-#         password_is_ok = request.form.get("password") == admin_password
-#         if not password_is_ok:
-#             current_app.logger.info("admin authorization failed")
-#             abort(401)  # unauthorized error
-#         auth_token = db.gen_new_auth_token()
-#         # if auth_token is None:
-#         #     current_app.logger.info("admin authorization failed")
-#         #     abort(401)  # unauthorized error
-#         session['auth_token'] = auth_token
-#         current_app.logger.info("admin authorized")
-#         return redirect(url_for("admin.panel"))  # add admin panel later
 
 
 @admin_panel.route("/signin", methods=["GET", "POST"])
@@ -98,27 +71,17 @@ def signin():
             return jsonify(api.AdminSignInResponse(
                 status=api.ResponseStatus.Failed
             )), 401
-            # abort(401)  # unauthorized error
         auth_token = db.gen_new_auth_token()
-        # current_app.logger.info("admin authorized")
         return jsonify(api.AdminSignInResponse(
             auth_token=auth_token,
             status=api.ResponseStatus.Ok
         ))
-        # return redirect(url_for("admin.panel"))  # add admin panel later
 
 
 @admin_panel.post("/upload_picture")
 @check_authorized
 def upload_picture():
     print("Uploading file")
-    print(request.files)
-    # req = models.user_api.AuthTokenHeader(**request.json)
-    # req = request.form
-    # req.auth_token = req['auth_token']  # пока все в форме будет, потом надо будет файл нормально отправлять
-    #
-    # if not is_authorized(req.auth_token):
-    #     return redirect(url_for("admin.signin"))
     if 'picture' not in request.files:
         raise RequestFailed
     file = request.files['picture']
@@ -131,7 +94,6 @@ def upload_picture():
     img_path = os.path.join(upload_dir, filename)
     file.save(os.path.join(upload_dir, filename))
 
-    # return {"img_path": filename}, 201
     return jsonify(api.UploadPictureResponse(
         img_path=img_path,
         status=api.ResponseStatus.Ok
@@ -143,25 +105,10 @@ def upload_picture():
 def add_goods_item():
     req = api.AddGoodsItemRequest(**request.json)
 
-    # if not is_authorized(req.auth_token):
-    #     return redirect(url_for("admin.signin"))
-    # name = request.json.get("name")
-    # description = request.json.get("description")
-    # price = request.json.get("price")
-    # img_path = request.json.get("img_path")
-    # category = request.json.get("category")
-    #
-    # if not isinstance(price, float) and not isinstance(price, int):
-    #     abort(400, "price must me float value")
-    # if category not in [category_code for category_code in GoodsCategory]:
-    #     abort(400, f"category {category} not exist")
-    # category = GoodsCategory(category)
-
     item = GoodsItem(name=req.name, description=req.description,
                      price=req.price, img_path=req.img_path, category=req.category)
 
     item_id = db.add_goods_item(item)
-    # return {"item_id": item_id}
     return jsonify(api.AddGoodsItemResponse(
         item_id=item_id,
         status=api.ResponseStatus.Ok
@@ -174,26 +121,6 @@ def edit_goods_item():
     # TODO: доделать метод чтобы можно было переавать не все значения (реадктировать поля выборочно)
     req = api.EditGoodsItemRequest(**request.json)
 
-    # if not is_authorized(req.auth_token):
-    #     return redirect(url_for("admin.signin"))
-    # item_id = request.json.get("id")
-    # name = request.json.get("name")
-    # description = request.json.get("description")
-    # price = request.json.get("price")
-    # img_path = request.json.get("img_path")
-    # category = request.json.get("category")
-
-    # print(item_id, name, description, price, img_path, category)
-
-    # if not isinstance(item_id, int):
-    #     current_app.logger.warning("Goods Item ID not provided")
-    #     abort(400, "Goods Item ID not provided")
-    # if not isinstance(price, float) and not isinstance(price, int):
-    #     abort(400, "price must me float value")
-    # if category not in [category_code for category_code in GoodsCategory]:
-    #     abort(400, f"category {category} not exist")
-    # category = GoodsCategory(category)
-
     item = GoodsItem(id=req.item_id, name=req.name, description=req.description,
                      price=req.price, img_path=req.img_path, category=req.category)
 
@@ -202,18 +129,12 @@ def edit_goods_item():
     return jsonify(api.CommonResponse(
         status=api.ResponseStatus.Ok if status else api.ResponseStatus.Failed
     ))
-    # return {"status": status}
 
 
 @admin_panel.post("/remove_goods_item")
 @check_authorized
 def remove_goods_item():
     req = api.RemoveGoodsItemRequest(**request.json)
-    # item_id = request.json.get("id")
-
-    # if not isinstance(item_id, int):
-    #     current_app.logger.warning("Goods Item ID not provided")
-    #     abort(400, "Goods Item ID not provided")
 
     status = db.del_goods_item_by_id(req.item_id)
 
