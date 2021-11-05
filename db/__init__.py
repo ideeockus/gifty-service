@@ -1,6 +1,4 @@
-"""
-This module provides API to work with db
-"""
+""" This module provides API to work with db """
 from typing import List, Optional
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
@@ -15,7 +13,6 @@ import utils
 
 engine = create_engine(db_url, echo=False)
 orm.Base.metadata.create_all(engine)
-# DbSession = sessionmaker(engine, expire_on_commit=False)
 DbSession = sessionmaker(engine)
 
 
@@ -36,8 +33,6 @@ def edit_goods_item(item: GoodsItem) -> bool:
 
 
 def add_goods_item(item: GoodsItem) -> int:
-    # with DbSession.begin() as session:  # DbSession.begin maintains a begin/commit/rollback block
-    #     session
     current_app.logger.debug(f"adding goods_item {item}")
     item_orm = orm.GoodsItemORM(**item.dict())
     session = DbSession()
@@ -65,15 +60,16 @@ def del_goods_item_by_id(item_id: int) -> bool:
 def get_goods_by_ids(goods_ids: List[int]) -> List[GoodsItem]:
     session = DbSession()
     goods_orm: List[orm.GoodsItemORM] = session.query(orm.GoodsItemORM).filter(orm.GoodsItemORM.id.in_(goods_ids)).all()
-    goods = ""
+    goods = [GoodsItem.from_orm(goods_item_orm) for goods_item_orm in goods_orm]
     session.close()
 
-    return [GoodsItem.from_orm(goods_item_orm) for goods_item_orm in goods_orm]
+    return goods
 
 
 def get_goods_by_category(category: GoodsCategory) -> List[GoodsItem]:
     session = DbSession()
-    goods_orm: List[orm.GoodsItemORM] = session.query(orm.GoodsItemORM).filter(orm.GoodsItemORM.category == category).all()
+    goods_orm: List[orm.GoodsItemORM] = session.query(orm.GoodsItemORM).filter(
+        orm.GoodsItemORM.category == category).all()
     goods = [GoodsItem.from_orm(goods_item_orm) for goods_item_orm in goods_orm]
     session.close()
 
@@ -106,28 +102,6 @@ def validate_authorization(token: str) -> bool:
 
 
 # ---------------------- db user_api for Order -----------------
-# def create_new_order(order: Order, goods_ids: List[int]) -> int:
-#     current_app.logger.debug(f"creating order {order}")
-#     order_orm = orm.OrderORM(**order.dict())
-#     if order_orm.creation_date is None:
-#         order_orm.creation_date = datetime.utcnow()
-#     order_orm.status = OrderStatus.New
-#     goods = get_goods_by_ids(goods_ids)
-#
-#     goods_amount_by_id = Counter(goods_ids)
-#
-#     for goods_item in goods:
-#         goods_association = orm.OrdersGoodsAssociationORM(goods_count=goods_amount_by_id[goods_item.id])
-#         goods_association.goods_item = goods_item
-#         order_orm.goods.append(goods_association)
-#
-#     session = DbSession()
-#     session.add(order_orm)
-#     order_id = order_orm.id
-#     session.commit()
-#     session.close()
-#
-#     return order_orm.id
 
 def create_new_order(box_type: BoxType, customer_name: str, customer_email: str, customer_phone: str,
                      customer_address: str, comment: Optional[str], goods_ids: List[int]) -> int:
@@ -142,9 +116,7 @@ def create_new_order(box_type: BoxType, customer_name: str, customer_email: str,
         creation_date=datetime.utcnow(),
         status=OrderStatus.New
     )
-    # if order_orm.creation_date is None:
-    #     order_orm.creation_date = datetime.utcnow()
-    # order_orm.status = OrderStatus.New
+
     session = DbSession()
     goods_orm: List[orm.GoodsItemORM] = session.query(orm.GoodsItemORM).filter(orm.GoodsItemORM.id.in_(goods_ids)).all()
 
@@ -163,20 +135,11 @@ def create_new_order(box_type: BoxType, customer_name: str, customer_email: str,
     return order_id
 
 
-# def get_order_by_id_as_dict(order_id: int) -> dict:
-#     session = DbSession()
-#     order = session.query(OrderORM).filter(OrderORM.id == order_id).scalar()
-#     order_dict = order.to_dict()
-#     session.close()
-#
-#     return order_dict
-
 def get_order_by_id(order_id: int) -> Order:
     with DbSession() as session:
         order_orm = session.query(orm.OrderORM).filter(orm.OrderORM.id == order_id).scalar()
         order = Order.from_orm(order_orm)
         session.close()
-        # print(order.dict())
 
         return order
 
