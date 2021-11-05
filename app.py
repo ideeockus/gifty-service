@@ -1,8 +1,8 @@
 from flask import Flask, render_template
 from flask.json import JSONEncoder
-from admin_panel import admin_panel
-from common_api import user_api
-from error_handlers import error_handler
+from web_service.admin_panel import admin_panel
+from web_service.common_api import user_api
+from web_service.error_handlers import error_handler
 from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel

@@ -3,7 +3,7 @@ from typing import Optional
 from app_config import admin_password, upload_dir
 from werkzeug.utils import secure_filename
 from utils.goods_xlx_importer import import_goods_from_xlx
-from error_handlers import RequestFailed
+from web_service.error_handlers import RequestFailed
 from functools import wraps
 from models import GoodsItem, GoodsCategory, BoxType
 from models import api
