@@ -221,7 +221,7 @@ function draw_cards() {
 
 function draw_goods_item_card(item) {
     /* нарисовать карточку товара (1шт) */
-    // item - GoodsItem
+    // item - GoodsItemORM
     let goods_cards_div = document.getElementById("goods_cards_div");
     let card = document.createElement("div");
     card.className = "goods_item_card";
@@ -344,7 +344,7 @@ function on_goods_item_card_click(event) {
 }
 
 
-// ------------------ api methods -----------------
+// ------------------ user_api methods -----------------
 async function postData(url = '', data = {}) {
   const response = await fetch(url, {
     method: 'POST',
@@ -359,17 +359,17 @@ async function postData(url = '', data = {}) {
 
 async function get_categories() {
     // console.log(categories);
-    return postData("/api/get_categories");
+    return postData("/user_api/get_categories");
 }
 
 
 async function get_goods_by_category(category) {
     // console.log(goods);
-    return postData("/api/get_goods_by_category", {"category": category});
+    return postData("/user_api/get_goods_by_category", {"category": category});
 }
 
 async function add_goods_item(item) {
-    // item - GoodsItem obj
+    // item - GoodsItemORM obj
     return postData("/admin/add_goods_item", {
         "name": item.name,
         "description": item.description,
@@ -380,7 +380,7 @@ async function add_goods_item(item) {
 }
 
 async function edit_goods_item(item) {
-    // item - GoodsItem obj
+    // item - GoodsItemORM obj
     return postData("/admin/edit_goods_item", {
         "id": item.id,
         "name": item.name,

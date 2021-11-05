@@ -2,15 +2,15 @@ from flask import request, abort, redirect, Blueprint, current_app, url_for, ren
 from typing import Optional
 from app_config import admin_password, upload_dir
 from werkzeug.utils import secure_filename
-from models import GoodsItem, GoodsCategory
 from utils.goods_xlx_importer import import_goods_from_xlx
 from error_handlers import RequestFailed
 from functools import wraps
+from models import GoodsItem, GoodsCategory, BoxType
+from models import api
 
 import os
 import io
 import db
-import models.api
 
 
 admin_panel = Blueprint("admin", __name__, url_prefix="/admin", template_folder="../templates")
@@ -33,12 +33,11 @@ def check_authorized(func):
     @wraps(func)
     def decor(*args, **kwargs):
         request_headers = request.headers  # auth_token должен быть в headers
-        print(request_headers)
         if request_headers is None:
             current_app.logger.debug("No data in request")
             return redirect(url_for("admin.signin"))
         else:
-            req = models.api.AuthTokenHeader(**request_headers)
+            req = api.AuthTokenHeader(**request_headers)
             if not is_authorized(req.auth_token):
                 return redirect(url_for("admin.signin"))
         return func()
@@ -48,7 +47,7 @@ def check_authorized(func):
 @admin_panel.get("/")
 @check_authorized
 def root():
-    # req = models.api.AuthTokenHeader(**request.json)
+    # req = models.user_api.AuthTokenHeader(**request.json)
     return redirect(url_for("admin.panel"))
         # if is_authorized(req.auth_token) else redirect(url_for("admin.signin"))
 
@@ -56,7 +55,7 @@ def root():
 @admin_panel.get("/panel")
 @check_authorized
 def panel():
-    # req = models.api.AuthTokenHeader(**request.json)
+    # req = models.user_api.AuthTokenHeader(**request.json)
     # if not is_authorized(req.auth_token):
     #     return redirect(url_for("admin.signin"))
     return render_template("admin/panel.html")
@@ -89,22 +88,22 @@ def signin():
     if request.method == "GET":
         return render_template("admin/signin.html")
     if request.method == "POST":
-        req = models.api.AdminSignInRequest(**request.json)
+        req = api.AdminSignInRequest(**request.json)
         if is_authorized(request.headers.get("Auth-Token")):
             return redirect(url_for("admin.panel"))
 
         password_is_ok = req.password == admin_password
         if not password_is_ok:
             current_app.logger.info("admin authorization failed")
-            return jsonify(models.api.AdminSignInResponse(
-                status=models.api.ResponseStatus.Failed
+            return jsonify(api.AdminSignInResponse(
+                status=api.ResponseStatus.Failed
             )), 401
             # abort(401)  # unauthorized error
         auth_token = db.gen_new_auth_token()
         # current_app.logger.info("admin authorized")
-        return jsonify(models.api.AdminSignInResponse(
+        return jsonify(api.AdminSignInResponse(
             auth_token=auth_token,
-            status=models.api.ResponseStatus.Ok
+            status=api.ResponseStatus.Ok
         ))
         # return redirect(url_for("admin.panel"))  # add admin panel later
 
@@ -114,7 +113,7 @@ def signin():
 def upload_picture():
     print("Uploading file")
     print(request.files)
-    # req = models.api.AuthTokenHeader(**request.json)
+    # req = models.user_api.AuthTokenHeader(**request.json)
     # req = request.form
     # req.auth_token = req['auth_token']  # пока все в форме будет, потом надо будет файл нормально отправлять
     #
@@ -133,16 +132,16 @@ def upload_picture():
     file.save(os.path.join(upload_dir, filename))
 
     # return {"img_path": filename}, 201
-    return jsonify(models.api.UploadPictureResponse(
+    return jsonify(api.UploadPictureResponse(
         img_path=img_path,
-        status=models.api.ResponseStatus.Ok
+        status=api.ResponseStatus.Ok
     ))
 
 
 @admin_panel.post("/add_goods_item")
 @check_authorized
 def add_goods_item():
-    req = models.api.AddGoodsItemRequest(**request.json)
+    req = api.AddGoodsItemRequest(**request.json)
 
     # if not is_authorized(req.auth_token):
     #     return redirect(url_for("admin.signin"))
@@ -163,16 +162,17 @@ def add_goods_item():
 
     item_id = db.add_goods_item(item)
     # return {"item_id": item_id}
-    return jsonify(models.api.AddGoodsItemResponse(
+    return jsonify(api.AddGoodsItemResponse(
         item_id=item_id,
-        status=models.api.ResponseStatus.Ok
+        status=api.ResponseStatus.Ok
     ))
 
 
 @admin_panel.post("/edit_goods_item")
 @check_authorized
 def edit_goods_item():
-    req = models.api.EditGoodsItemRequest(**request.json)
+    # TODO: доделать метод чтобы можно было переавать не все значения (реадктировать поля выборочно)
+    req = api.EditGoodsItemRequest(**request.json)
 
     # if not is_authorized(req.auth_token):
     #     return redirect(url_for("admin.signin"))
@@ -199,8 +199,8 @@ def edit_goods_item():
 
     status = db.edit_goods_item(item)
 
-    return jsonify(models.api.CommonResponse(
-        status=models.api.ResponseStatus.Ok if status else models.api.ResponseStatus.Failed
+    return jsonify(api.CommonResponse(
+        status=api.ResponseStatus.Ok if status else api.ResponseStatus.Failed
     ))
     # return {"status": status}
 
@@ -208,7 +208,7 @@ def edit_goods_item():
 @admin_panel.post("/remove_goods_item")
 @check_authorized
 def remove_goods_item():
-    req = models.api.RemoveGoodsItemRequest(**request.json)
+    req = api.RemoveGoodsItemRequest(**request.json)
     # item_id = request.json.get("id")
 
     # if not isinstance(item_id, int):
@@ -217,8 +217,8 @@ def remove_goods_item():
 
     status = db.del_goods_item_by_id(req.item_id)
 
-    return jsonify(models.api.CommonResponse(
-        status=models.api.ResponseStatus.Ok if status else models.api.ResponseStatus.Failed
+    return jsonify(api.CommonResponse(
+        status=api.ResponseStatus.Ok if status else api.ResponseStatus.Failed
     ))
 
 

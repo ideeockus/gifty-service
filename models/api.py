@@ -1,9 +1,9 @@
-from typing import Optional, Union
-from pydantic import BaseModel, FilePath, EmailStr, constr, Field
-from enum import Enum
-from models import GoodsCategory
-
 """ Models for API """
+
+from typing import Optional, Union, List
+from pydantic import BaseModel, Field
+from enum import Enum
+from models import GoodsCategory, GoodsItem, BoxType, OrderStatus, Order
 
 
 class ResponseStatus(Enum):
@@ -22,10 +22,9 @@ class CommonResponse(BaseModel):
     status: ResponseStatus
 
 
-# --------- admin api dataclasses ------------
+# --------- admin user_api dataclasses ------------
 class AdminSignInRequest(BaseModel):
     password: Optional[str]
-
 class AdminSignInResponse(CommonResponse):
     auth_token: Optional[str]
 
@@ -40,7 +39,6 @@ class AddGoodsItemRequest(BaseModel):
     price: Union[int, float]
     img_path: str = "/static/pictures/no_image.png"
     category: GoodsCategory
-
 class AddGoodsItemResponse(CommonResponse):
     item_id: int
 
@@ -50,13 +48,43 @@ class EditGoodsItemRequest(BaseModel):
     name: str
     description: Optional[str]
     price: Union[int, float]
-    img_path: FilePath = "/static/pictures/no_image.png"
+    img_path: str = "/static/pictures/no_image.png"
     category: GoodsCategory
 
 
 class RemoveGoodsItemRequest(BaseModel):
     item_id: int
 
-# ---------- user api dataclasses --------
+
+# ---------- user user_api dataclasses --------
+
+class GetGoodsByCategoryRequest(BaseModel):
+    category: GoodsCategory
+class  GetGoodsByCategoryResponse(CommonResponse):
+    goods: List[GoodsItem]
+
+
+class CreateOrderRequest(BaseModel):
+    box_type: BoxType
+    customer_name: str
+    customer_email: str
+    customer_phone: str
+    customer_address: str
+    comment: Optional[str]
+    goods_ids: List[int]
+class  CreateOrderResponse(CommonResponse):
+    order_id: int
+
+
+class GetOrderRequest(BaseModel):
+    order_id: int
+class GetOrderResponse(CommonResponse):
+    order: Order
+
+
+class GetOrderStatusRequest(BaseModel):
+    order_id: int
+class GetOrderStatusResponse(CommonResponse):
+    order_status: OrderStatus
 
 

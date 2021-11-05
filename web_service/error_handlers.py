@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from pydantic import ValidationError
-import models.api
+from models.api import CommonResponse, ResponseStatus
 
 error_handler = Blueprint("error_handler", __name__)
 
@@ -16,14 +16,15 @@ def page_not_found(error):
 
 
 @error_handler.app_errorhandler(RequestFailed)
-def page_not_found(error):
-    return jsonify(models.api.CommonResponse(
-        status=models.api.ResponseStatus.Failed
+def request_failed(error):
+    print("Error handling")
+    return jsonify(CommonResponse(
+        status=ResponseStatus.Failed
     ))
 
 
 @error_handler.app_errorhandler(ValidationError)
-def page_not_found(error: ValidationError):
+def validation_error(error: ValidationError):
     return jsonify(
         error.errors()
     )

@@ -1,7 +1,7 @@
 from flask import Flask, render_template
-from flask.json import JSONEncoder, jsonify
+from flask.json import JSONEncoder
 from admin_panel import admin_panel
-from common_api import api
+from common_api import user_api
 from error_handlers import error_handler
 from datetime import datetime
 from enum import Enum
@@ -33,7 +33,7 @@ app = Flask(__name__)
 app.secret_key = secrets.token_bytes(30)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1000 * 1000  # in bytes
 app.register_blueprint(admin_panel)
-app.register_blueprint(api)
+app.register_blueprint(user_api)
 app.register_blueprint(error_handler)
 app.logger.setLevel(logging.DEBUG)
 app.json_encoder = ServiceCustomJsonEncoder
