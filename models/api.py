@@ -88,3 +88,8 @@ class GetOrderStatusResponse(CommonResponse):
     order_status: OrderStatus
 
 
+class SetOrderStatusRequest(BaseModel):
+    order_id: int
+    order_status: OrderStatus
+
+

@@ -235,3 +235,15 @@ def import_xlx_goods():
     import_goods_from_xlx(goods_xlx_in_memory)
 
     return {"status": True}, 201
+
+
+@admin_panel.post("/set_order_status")
+@check_authorized
+def set_order_status():
+    req = api.SetOrderStatusRequest(**request.json)
+
+    status = db.set_order_status_by_id(req.order_id, req.order_status)
+
+    return jsonify(api.CommonResponse(
+        status=api.ResponseStatus.Ok if status else api.ResponseStatus.Failed
+    ))
