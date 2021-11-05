@@ -165,6 +165,7 @@ def set_order_status_by_id(order_id: int, order_status: OrderStatus) -> bool:
     session = DbSession()
     order = session.query(orm.OrderORM).filter(orm.OrderORM.id == order_id).scalar()
     order.status = order_status
+    session.commit()
     session.close()
 
     return True
