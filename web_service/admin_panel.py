@@ -168,3 +168,16 @@ def set_order_status():
     return jsonify(api.CommonResponse(
         status=api.ResponseStatus.Ok if status else api.ResponseStatus.Failed
     ))
+
+
+@admin_panel.post("/get_orders")
+@check_authorized
+def get_orders():
+    req = api.GetOrdersRequest(**request.json)
+
+    orders = db.get_orders(req.offset, req.limit)
+
+    return jsonify(api.GetOrdersResponse(
+        orders=orders,
+        status=api.ResponseStatus.Ok
+    ))

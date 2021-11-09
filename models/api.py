@@ -93,3 +93,10 @@ class SetOrderStatusRequest(BaseModel):
     order_status: OrderStatus
 
 
+class GetOrdersRequest(BaseModel):
+    offset: int = 0
+    limit: int = 10
+class GetOrdersResponse(CommonResponse):
+    orders: List[Order]
+
+
