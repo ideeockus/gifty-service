@@ -6,6 +6,7 @@ from web_service.error_handlers import error_handler
 from datetime import datetime
 from enum import Enum
 from pydantic import BaseModel
+from db.migrations import apply_migrations
 
 import secrets
 import logging
@@ -27,6 +28,9 @@ class ServiceCustomJsonEncoder(JSONEncoder):
         else:
             return list(iterable)
         return JSONEncoder.default(self, obj)
+
+
+apply_migrations()  # применение миграций
 
 
 app = Flask(__name__)
