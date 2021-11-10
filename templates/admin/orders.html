@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Title</title>
     <link rel="stylesheet" type="text/css" href="/static/styles/milligram.min.css">
-    <link rel="stylesheet" type="text/css" href="/static/styles/admin_panel_styles.css">
+    <link rel="stylesheet" type="text/css" href="/static/styles/admin/orders_page_style.css">
 </head>
 <body>
 <section class="section">
@@ -14,17 +14,17 @@
         <select name="goods_category" id="goods_category_select"></select>
     </--div-->
     <div class="container" id="orders_div">
-        <table>
+        <table id="orders_table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Age</th>
-              <th>Height</th>
-              <th>Location</th>
+              <th>Статус</th>
+              <th>Имя</th>
+              <th>Email</th>
+              <th>Телефон</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
+            <!--tr>
               <td>Stephen Curry</td>
               <td>27</td>
               <td>1,91</td>
@@ -35,11 +35,11 @@
               <td>25</td>
               <td>2,01</td>
               <td>Los Angeles, CA</td>
-            </tr>
+            </tr-->
           </tbody>
         </table>
     </div>
   </section>
 </body>
- <script src="/static/scripts/admin_panel_scripts.js"></script>
+ <script src="/static/scripts/admin/orders_page_scripts.js"></script>
 </html>

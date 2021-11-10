@@ -60,6 +60,12 @@ def panel():
     return render_template("admin/panel.html")
 
 
+@admin_panel.get("/orders")
+@check_authorized
+def orders():
+    return render_template("admin/orders.html")
+
+
 @admin_panel.route("/signin", methods=["GET", "POST"])
 def signin():
     # print(request.method)
