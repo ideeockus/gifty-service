@@ -13,5 +13,10 @@ def apply_img_path_migration():
                 good_orm.img_path = default_image_path
 
 
-if __name__ == "__main__":
-    apply_img_path_migration()
+def apply_price_migration():
+    print("Applying price migration")
+    with DbSession.begin() as session:
+        goods_orm: List[orm.GoodsItemORM] = session.query(orm.GoodsItemORM).all()
+        for good_orm in goods_orm:
+            if good_orm.price is None:
+                session.delete(good_orm)

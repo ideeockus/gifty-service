@@ -1,6 +1,7 @@
-from db.migrations import img_path_migration
+from db.migrations import goods_item_migrations
 
 
 def apply_migrations():
     print("Applying migrations")
-    img_path_migration.apply_img_path_migration()
+    goods_item_migrations.apply_img_path_migration()
+    goods_item_migrations.apply_price_migration()
