@@ -3,6 +3,8 @@
 from typing import Optional, Union, List
 from pydantic import BaseModel, Field
 from enum import Enum
+
+from app_config import default_image_path
 from models import GoodsCategory, GoodsItem, BoxType, OrderStatus, Order
 
 
@@ -37,7 +39,7 @@ class AddGoodsItemRequest(BaseModel):
     name: str
     description: Optional[str]
     price: Union[int, float]
-    img_path: str = "static/pictures/no_image.png"
+    img_path: str = default_image_path
     category: GoodsCategory
 class AddGoodsItemResponse(CommonResponse):
     item_id: int
@@ -48,7 +50,7 @@ class EditGoodsItemRequest(BaseModel):
     name: str
     description: Optional[str]
     price: Union[int, float]
-    img_path: str = "/static/pictures/no_image.png"
+    img_path: str = default_image_path
     category: GoodsCategory
 
 
