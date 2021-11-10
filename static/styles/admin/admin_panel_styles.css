@@ -70,52 +70,56 @@
     position: fixed;
     left: 50%;
     top: 50%;
-    width: 50vw;
-    height: 30vh;
-    min-width: 400px;
-    min-height: 400px;
-    margin-top: -15vh;
-    margin-left: -25vw;
+    width: 85vw;
+    height: 50vh;
+    margin-top: -25vh;
+    margin-left: -42.5vw;
     background: #fff;
     border: 1px solid #ccc;
     border-radius: 5px;
     box-shadow: 0 30px 90px #777;
     z-index: 999;
-    padding: 30px;
+    padding: 10px;
 }
 .popup_goods_item_edit input {
-    width: 50%;
+    max-width: 90%;
     display: block;
     margin-left: auto;
     margin-right: auto;
 }
 
 .popup_goods_item_edit select {
-    width: 50%;
+    width: 90%;
     display: block;
     margin-left: auto;
     margin-right: auto;
 }
 
 .btn_div {
-    width: 50%;
+    max-width: 100%;
     padding: 5px;
-    /*margin-left: auto;*/
-    /*margin-right: auto;*/
     margin-left: auto;
-    margin-right: 0;
+    margin-right: auto;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-column-gap: 0.5rem;
+    grid-row: auto;
+    /*margin-left: auto;*/
+    /*margin-right: 0;*/
 }
 
 .div-button {
     color: black;
     background-color: #7ea3ff;
-    display: inline-block;
+    display: block;
     border: #7ea3ff 2px solid;
     border-radius: 5px;
     padding: 10px;
-    margin: 15px;
+    margin: 0.5rem;
     user-select: none;
     cursor: pointer;
+    max-width: 30vw;
+    text-align: center;
 }
 .div-button:hover {
     background-color: #b7dcff;
@@ -131,12 +135,44 @@
     #goods_cards_div {
         grid-template-columns: repeat(3, 1fr);
     }
+
+    .popup_goods_item_edit {
+        width: 50vw;
+        height: 30vh;
+        min-width: 400px;
+        min-height: 400px;
+        margin-top: -15vh;
+        margin-left: -25vw;
+        padding: 30px;
+    }
+
+    .btn_div {
+        max-width: 75%;
+        padding: 10px;
+    }
 }
 
 /*!* Larger than tablet screen *!*/
 @media (min-width: 80.0rem) {
     #goods_cards_div {
         grid-template-columns: repeat(4, 1fr);
+    }
+
+    .popup_goods_item_edit input {
+        max-width: 50%;
+    }
+
+    .popup_goods_item_edit select {
+        width: 50%;
+    }
+
+    .btn_div {
+        max-width: 50%;
+        padding: 15px;
+        /*margin-left: auto;*/
+        /*margin-right: auto;*/
+        margin-left: auto;
+        margin-right: 0;
     }
 }
 
