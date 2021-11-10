@@ -82,6 +82,9 @@ class Order(BaseModel):
         for goods_association in goods_orm:
             if isinstance(goods_association, GoodsItem):
                 return goods_association
-            goods_items = [goods_association.goods_item] * goods_association.goods_count
+            goods_items = filter(
+                lambda gi: gi is not None,
+                [goods_association.goods_item] * goods_association.goods_count
+            )
             goods.extend(goods_items)
         return goods

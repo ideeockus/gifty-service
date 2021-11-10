@@ -144,6 +144,16 @@ def get_order_by_id(order_id: int) -> Order:
         return order
 
 
+def get_orders(offset: int = 0, limit: int = 10) -> List[Order]:
+    with DbSession() as session:
+        orders_orm = session.query(orm.OrderORM).offset(offset).limit(limit).all()
+        orders = [Order.from_orm(order_orm) for order_orm in orders_orm]
+        print(orders)
+        session.close()
+
+        return orders
+
+
 def get_orders_by_status(order_status: OrderStatus) -> List[Order]:
     session = DbSession()
     orders_orm = list(session.query(orm.OrderORM).filter(orm.OrderORM.status == order_status).all())

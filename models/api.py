@@ -37,7 +37,7 @@ class AddGoodsItemRequest(BaseModel):
     name: str
     description: Optional[str]
     price: Union[int, float]
-    img_path: str = "/static/pictures/no_image.png"
+    img_path: str = "static/pictures/no_image.png"
     category: GoodsCategory
 class AddGoodsItemResponse(CommonResponse):
     item_id: int
@@ -91,5 +91,12 @@ class GetOrderStatusResponse(CommonResponse):
 class SetOrderStatusRequest(BaseModel):
     order_id: int
     order_status: OrderStatus
+
+
+class GetOrdersRequest(BaseModel):
+    offset: int = 0
+    limit: int = 10
+class GetOrdersResponse(CommonResponse):
+    orders: List[Order]
 
 
