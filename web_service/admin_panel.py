@@ -1,4 +1,5 @@
-from flask import request, abort, redirect, Blueprint, current_app, url_for, render_template, jsonify
+from flask import request, abort, redirect, Blueprint, current_app,\
+    url_for, render_template, jsonify, session, make_response
 from typing import Optional
 from app_config import admin_password, upload_dir
 from werkzeug.utils import secure_filename
@@ -32,13 +33,16 @@ def is_authorized(auth_token: Optional[str]) -> bool:
 def check_authorized(func):
     @wraps(func)
     def decor(*args, **kwargs):
-        request_headers = request.headers  # auth_token должен быть в headers
-        if request_headers is None:
+        # request_headers = request.headers  # auth_token должен быть в headers
+        # auth_token = request.cookies
+        session_cookies = session
+        print(session_cookies)
+        if session_cookies is None:
             current_app.logger.debug("No data in request")
             return redirect(url_for("admin.signin"))
         else:
-            req = api.AuthTokenHeader(**request_headers)
-            if not is_authorized(req.auth_token):
+            auth_token = session_cookies.get("auth_token")
+            if not is_authorized(auth_token):
                 return redirect(url_for("admin.signin"))
         return func()
     return decor
@@ -58,9 +62,11 @@ def panel():
 
 @admin_panel.route("/signin", methods=["GET", "POST"])
 def signin():
+    # print(request.method)
     if request.method == "GET":
         return render_template("admin/signin.html")
     if request.method == "POST":
+        print(request.json)
         req = api.AdminSignInRequest(**request.json)
         if is_authorized(request.headers.get("Auth-Token")):
             return redirect(url_for("admin.panel"))
@@ -72,6 +78,12 @@ def signin():
                 status=api.ResponseStatus.Failed
             )), 401
         auth_token = db.gen_new_auth_token()
+        # response = make_response(jsonify(api.AdminSignInResponse(
+        #     auth_token=auth_token,
+        #     status=api.ResponseStatus.Ok
+        # )))
+        # response.set_cookie("auth_token", auth_token)
+        session['auth_token'] = auth_token
         return jsonify(api.AdminSignInResponse(
             auth_token=auth_token,
             status=api.ResponseStatus.Ok
@@ -92,7 +104,7 @@ def upload_picture():
 
     filename = secure_filename(file.filename)
     img_path = os.path.join(upload_dir, filename)
-    file.save(os.path.join(upload_dir, filename))
+    file.save(img_path)
 
     return jsonify(api.UploadPictureResponse(
         img_path=img_path,

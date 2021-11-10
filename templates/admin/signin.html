@@ -10,12 +10,45 @@
 <body>
 <section class="section">
     <div class="container" id="signin_form_div">
-      <form action="signin" method="post">
-          <label for="password_input">Enter password:</label>
-          <input id="password_input" type="password" name="password"/><br>
-        <input type="submit" value="Submit" />
-      </form>
+        <label for="password_input">Enter password:</label>
+        <input id="password_input" type="password" name="password"/><br>
+        <button id="enter_btn">Войти3</button>
     </div>
   </section>
 </body>
+<script>
+    document.getElementById("enter_btn").addEventListener("click", onEnterBtnClick)
+    let auth_token = null
+    function onEnterBtnClick(event) {
+        console.log("Clicked")
+        let password = document.getElementById("password_input").value
+        const response_promise = fetch("/admin/signin", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            // redirect: 'follow', // manual, *follow, error
+            body: JSON.stringify({
+                "password": password
+            })
+          });
+          response_promise.then(
+              response => {
+                  response.json().then(
+                      data => {
+                          console.log(data);
+                          auth_token = data['auth_token']
+                          status = data['status']
+
+                          if (auth_token !== null) {
+                              console.log("Got auth token");
+                              // try to open panel
+                              document.location.href = "/admin/panel"
+                        } else {
+                              alert("Ппроль нверный");
+                          }
+                      }
+                  )});
+    }
+</script>
 </html>

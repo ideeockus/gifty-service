@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", admin_panel_loaded);
 let goods_categories;
 let current_goods_category;
 let has_popups = false;  // Чтобы кучу попытов не открывало. Наверное так это делается, хз :)
-let pictures_dir = "/static/pictures/";
+let pictures_dir = "/";
 let add_card_img = "/static/pictures/plus4.png";
 
 
@@ -56,14 +56,22 @@ function draw_add_card() {
     let goods_cards_div = document.getElementById("goods_cards_div");
     let card = document.createElement("div");
     card.className = "goods_item_card";
+    let img_div = document.createElement("div");
+    img_div.style.height = "70%"
+
+    img_div.className = "goods_item_img_div"
     let img = document.createElement("img");
     img.src = add_card_img;
-    card.appendChild(img);
+    img_div.appendChild(img);
+    card.appendChild(img_div);
 
+    let card_data_div = document.createElement("div");
+    card_data_div.style.height = "30%"
     let name_p = document.createElement("p");
     name_p.innerHTML = "Add";
     name_p.className = "name_p";
-    card.appendChild(name_p);
+    card_data_div.appendChild(name_p);
+    card.appendChild(card_data_div);
 
     goods_cards_div.appendChild(card);
     card.addEventListener("click", on_add_card_click);
@@ -207,7 +215,7 @@ function draw_cards() {
     get_goods_by_category(current_goods_category).then(
         goods_list => {
             console.log("Goods: " + goods_list);
-            goods_list.forEach( item => {
+            goods_list['goods'].forEach( item => {
                 let goods_item = new GoodsItem(item.id,  item.name,
                     item.description,  item.price,  item.category,  item.img_path);
                 draw_goods_item_card(goods_item);
@@ -224,10 +232,15 @@ function draw_goods_item_card(item) {
     // item - GoodsItemORM
     let goods_cards_div = document.getElementById("goods_cards_div");
     let card = document.createElement("div");
-    card.className = "goods_item_card";
+    card.className = "goods_item_card column";
+
+    let img_div = document.createElement("div");
+    img_div.style.height = "70%"
     let img = document.createElement("img");
     img.src = pictures_dir + item.img_path;
-    card.appendChild(img);
+    img_div.appendChild(img);
+    card.appendChild(img_div);
+
 
     // store item data
     card.dataset.id = item.id;
@@ -237,14 +250,17 @@ function draw_goods_item_card(item) {
     card.dataset.category = item.category;
     card.dataset.img_path = item.img_path;
 
+    let card_data_div = document.createElement("div");
+    card_data_div.style.height = "30%"
     let name_p = document.createElement("p");
     name_p.innerHTML = item.name; // js что ты делаеш
     name_p.className = "name_p";
-    card.appendChild(name_p);
+    card_data_div.appendChild(name_p);
     let description_p = document.createElement("p");
     description_p.innerHTML = item.description + " | " + Math.round(item.price * 100) / 100;
     description_p.className = "description_p";
-    card.appendChild(description_p);
+    card_data_div.appendChild(description_p);
+    card.appendChild(card_data_div);
 
     goods_cards_div.appendChild(card);
     card.addEventListener("click", on_goods_item_card_click);
@@ -344,7 +360,7 @@ function on_goods_item_card_click(event) {
 }
 
 
-// ------------------ user_api methods -----------------
+// ------------------ api methods -----------------
 async function postData(url = '', data = {}) {
   const response = await fetch(url, {
     method: 'POST',
@@ -359,13 +375,13 @@ async function postData(url = '', data = {}) {
 
 async function get_categories() {
     // console.log(categories);
-    return postData("/user_api/get_categories");
+    return postData("/api/get_categories");
 }
 
 
 async function get_goods_by_category(category) {
     // console.log(goods);
-    return postData("/user_api/get_goods_by_category", {"category": category});
+    return postData("/api/get_goods_by_category", {"category": category});
 }
 
 async function add_goods_item(item) {
@@ -382,7 +398,7 @@ async function add_goods_item(item) {
 async function edit_goods_item(item) {
     // item - GoodsItemORM obj
     return postData("/admin/edit_goods_item", {
-        "id": item.id,
+        "item_id": item.id,
         "name": item.name,
         "description": item.description,
         "price": item.price,
@@ -393,7 +409,7 @@ async function edit_goods_item(item) {
 
 async function remove_goods_item(item_id) {
     return postData("/admin/remove_goods_item", {
-        "id": item_id,
+        "item_id": item_id,
     });
 }
 

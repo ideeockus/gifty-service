@@ -37,7 +37,7 @@ class AddGoodsItemRequest(BaseModel):
     name: str
     description: Optional[str]
     price: Union[int, float]
-    img_path: str = "/static/pictures/no_image.png"
+    img_path: str = "static/pictures/no_image.png"
     category: GoodsCategory
 class AddGoodsItemResponse(CommonResponse):
     item_id: int
